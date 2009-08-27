@@ -28,6 +28,16 @@ sub table { croak 'implement table name' }
 sub validation { croak 'implement validation rules' }
 sub default_search_column { 'id' }
 
+sub debug {
+    my ($class, $debug) = @_;
+    $class->db->attribute->{ profile } = $debug;
+}
+
+sub query_log {
+    my $class = shift;
+    $class->db->profiler->query_log(@_);
+}
+
 sub setup {
     my ($class, $args) = @_;
 
