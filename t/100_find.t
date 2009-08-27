@@ -32,6 +32,18 @@ describe 'instance object test' => run {
         is $python->name, 'python', 'name is python';
     };
 
+    test 'find no args' => run {
+        ok my $perl = Mock::Language->find, 'find first row';
+        isa_ok $perl, 'Mock::Language';
+        is $perl->name, 'perl', 'name is perl';
+    };
+
+    test 'find with opt' => run {
+        ok my $ruby = Mock::Language->find(undef, { order_by => { id => 'desc' } }), 'find last row';
+        isa_ok $ruby, 'Mock::Language';
+        is $ruby->name, 'ruby', 'name is ruby';
+    };
+
     cleanup {
         unlink './t/main.db';
     };
