@@ -37,7 +37,7 @@ describe 'instance object test' => run {
         is_deeply [ $result->error ], [ 'name' ], 'validation error happened in name';
         is_deeply [ $result->error('name') ], [ 'NOT_BLANK' ], 'name is required';
 
-        ok $perl->validate({ id => 99 })->success, 'row object validate based on their own columns (args not contains "name")';
+        ok $perl->validate({ id => 1 })->success, 'row object validate based on their own columns (args not contains "name")';
     };
 
     cleanup {
