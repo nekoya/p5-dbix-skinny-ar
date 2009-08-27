@@ -141,7 +141,7 @@ sub delete {
 }
 
 sub belongs_to {
-    my ($class, $method, $target, $column) = @_;
+    my ($class, $method, $column, $target) = @_;
     croak 'belongs_to needs method name' unless $method;
     $target = $class->_prepare_target_class($method, $target);
     $column = $method . '_id' unless $column;
@@ -155,7 +155,7 @@ sub belongs_to {
 }
 
 sub has_many {
-    my ($class, $method, $target, $column) = @_;
+    my ($class, $method, $column, $target) = @_;
     croak 'has_many needs method name' unless $method;
     $target = $class->_prepare_target_class($method, $target);
     $column = $method . '_id' unless $column;
