@@ -116,15 +116,16 @@ sub validate {
 
 sub create {
     my ($class, $args) = @_;
-    $class->validate($args);
+    my $result = $class->validate($args);
+    croak $result if $result->has_error;
     my $row = $class->db->insert($class->table, $args);
     $class->new({ row => $row });
 }
 
 sub update {
     my ($self, $args) = @_;
-    $self->row->set($args) if $args;
-    $self->validate;
+    my $result = $self->validate($args);
+    croak $result if $result->has_error;
     $self->row->update($args);
 }
 
