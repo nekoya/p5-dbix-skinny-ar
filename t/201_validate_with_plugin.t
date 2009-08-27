@@ -32,8 +32,8 @@ describe 'instance object test' => run {
         my $perl = Mock::Language->find(1);
         my $result = $perl->validate({ name => 'python' });
         ok $result->has_error, 'validation failed';
-        is_deeply [ $result->error ], [ 'uname' ], 'validation error happened in uname';
-        is_deeply [ $result->error('uname') ], [ 'DBIC_UNIQUE' ], 'error is DBIC_UNIQUE';
+        is_deeply [ $result->error ], [ 'name' ], 'validation error happened in name';
+        is_deeply [ $result->error('name') ], [ 'DBIC_UNIQUE' ], 'error is DBIC_UNIQUE';
     };
 
     cleanup {
