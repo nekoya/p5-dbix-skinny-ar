@@ -17,4 +17,7 @@ sub validation {
     ];
 }
 
+__PACKAGE__->belongs_to('gender');
+__PACKAGE__->belongs_to('prefecture' => 'pref_id');
+
 1;

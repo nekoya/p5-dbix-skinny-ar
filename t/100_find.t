@@ -7,18 +7,10 @@ plan tests => blocks;
 describe 'instance object test' => run {
     init {
         Mock::Basic->setup_test_db;
-        Mock::Basic->insert('languages',{
-            id   => 1,
-            name => 'perl',
-        });
-        Mock::Basic->insert('languages',{
-            id   => 2,
-            name => 'python',
-        });
     };
 
     test 'find, but record not found' => run {
-        is(Mock::Language->find({ name => 'ruby' }), undef, 'find() returns undef when record was not exists');
+        is(Mock::Language->find({ name => 'php' }), undef, 'find() returns undef when record was not exists');
     };
 
     test 'find by default column' => run {

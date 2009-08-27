@@ -7,10 +7,6 @@ plan tests => blocks;
 describe 'instance object test' => run {
     init {
         Mock::Basic->setup_test_db;
-        Mock::Basic->insert('languages',{
-            id   => 1,
-            name => 'perl',
-        });
     };
 
     test 'call as class method' => run {
@@ -22,7 +18,7 @@ describe 'instance object test' => run {
         is_deeply [ $result->error ], [ 'name' ], 'validation error happened in name';
         is_deeply [ $result->error('name') ], [ 'NOT_BLANK' ], 'name is required';
 
-        $result = Mock::Language->validate({ name => 'ruby' });
+        $result = Mock::Language->validate({ name => 'php' });
         isa_ok $result, 'FormValidator::Simple::Results';
         ok $result->success, 'validation succeeded';
     };

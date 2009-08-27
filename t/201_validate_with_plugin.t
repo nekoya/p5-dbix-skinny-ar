@@ -8,16 +8,6 @@ plan tests => blocks;
 describe 'instance object test' => run {
     init {
         Mock::Basic->setup_test_db;
-        Mock::Basic->insert('members',{
-            id   => 1,
-            name => 'taro',
-            kana => 'タロウ',
-        });
-        Mock::Basic->insert('members',{
-            id   => 2,
-            name => 'hanako',
-            kana => 'ハナコ',
-        });
     };
 
     test 'katakana' => run {
