@@ -10,6 +10,9 @@ describe 'instance object test' => run {
         is(Mock::Language->table, 'languages', 'assert table name');
         my $validator = Mock::Language->validator;
         is $validator->{ module }, 'FormValidator::Simple', 'assert validator module';
-        is_deeply $validator->{ plugins }, [ 'FormValidator::Simple::Plugin::DBIC::Unique' ], 'assert validator plugins';
+        is_deeply $validator->{ plugins }, [qw(
+        FormValidator::Simple::Plugin::DBIC::Unique
+        FormValidator::Simple::Plugin::Japanese
+        )], 'assert validator plugins';
     };
 };
