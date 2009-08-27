@@ -6,8 +6,15 @@ use DBIx::Skinny setup => +{
 };
 
 sub setup_test_db {
-    shift->do(q{
+    my $db = shift;
+    $db->do(q{
         CREATE TABLE languages (
+            id   INT,
+            name TEXT
+        )
+    });
+    $db->do(q{
+        CREATE TABLE members (
             id   INT,
             name TEXT,
             kana TEXT

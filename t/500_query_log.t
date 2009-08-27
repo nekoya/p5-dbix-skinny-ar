@@ -17,7 +17,7 @@ describe 'instance object test' => run {
         Mock::Language->debug(1);
         my $perl = Mock::Language->find(1);
         my $log = Mock::Language->query_log;
-        is_deeply $log, [ "SELECT id, name, kana FROM languages WHERE (id = ?) LIMIT 1 :binds 1" ], 'query_log';
+        is_deeply $log, [ "SELECT id, name FROM languages WHERE (id = ?) LIMIT 1 :binds 1" ], 'query_log';
     };
 
     cleanup {

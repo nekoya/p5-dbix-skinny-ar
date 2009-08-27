@@ -7,6 +7,14 @@ install_table languages => schema {
     columns qw/
         id
         name
+    /;
+};
+
+install_table members => schema {
+    pk 'id';
+    columns qw/
+        id
+        name
         kana
     /;
 };

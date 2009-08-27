@@ -1,5 +1,5 @@
 use t::Utils;
-use Mock::Language;
+use Mock::Member;
 use Test::Declare;
 use Data::Dumper;
 
@@ -8,29 +8,29 @@ plan tests => blocks;
 describe 'instance object test' => run {
     init {
         Mock::Basic->setup_test_db;
-        Mock::Basic->insert('languages',{
+        Mock::Basic->insert('members',{
             id   => 1,
-            name => 'perl',
-            kana => 'パール',
+            name => 'taro',
+            kana => 'タロウ',
         });
-        Mock::Basic->insert('languages',{
+        Mock::Basic->insert('members',{
             id   => 2,
-            name => 'python',
-            kana => 'パイソン',
+            name => 'hanako',
+            kana => 'ハナコ',
         });
     };
 
     test 'katakana' => run {
-        my $perl = Mock::Language->find(1);
-        my $result = $perl->validate({ kana => 'perl' });
+        my $taro = Mock::Member->find(1);
+        my $result = $taro->validate({ kana => 'taro' });
         ok $result->has_error, 'validation failed';
         is_deeply [ $result->error ], [ 'kana' ], 'validation error happened in kana';
         is_deeply [ $result->error('kana') ], [ 'KATAKANA' ], 'error is KATAKANA';
     };
 
     test 'dbic_unique' => run {
-        my $perl = Mock::Language->find(1);
-        my $result = $perl->validate({ name => 'python' });
+        my $perl = Mock::Member->find(1);
+        my $result = $perl->validate({ name => 'hanako' });
         ok $result->has_error, 'validation failed';
         is_deeply [ $result->error ], [ 'name' ], 'validation error happened in name';
         is_deeply [ $result->error('name') ], [ 'DBIC_UNIQUE' ], 'error is DBIC_UNIQUE';
