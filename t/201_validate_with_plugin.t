@@ -11,7 +11,7 @@ describe 'instance object test' => run {
     };
 
     test 'katakana' => run {
-        my $taro = Mock::Member->find(1);
+        my $taro = Mock::Member->find('taro');
         my $result = $taro->validate({ kana => 'taro' });
         ok $result->has_error, 'validation failed';
         is_deeply [ $result->error ], [ 'kana' ], 'validation error happened in kana';
@@ -19,8 +19,8 @@ describe 'instance object test' => run {
     };
 
     test 'dbic_unique' => run {
-        my $perl = Mock::Member->find(1);
-        my $result = $perl->validate({ name => 'hanako' });
+        my $taro = Mock::Member->find('taro');
+        my $result = $taro->validate({ name => 'hanako' });
         ok $result->has_error, 'validation failed';
         is_deeply [ $result->error ], [ 'name' ], 'validation error happened in name';
         is_deeply [ $result->error('name') ], [ 'DBIC_UNIQUE' ], 'error is DBIC_UNIQUE';

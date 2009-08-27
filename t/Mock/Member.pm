@@ -3,6 +3,7 @@ use Any::Moose;
 extends 'Mock::AR';
 
 sub table { 'members' }
+sub default_search_column { 'name' }
 
 __PACKAGE__->mk_accessors;
 
