@@ -8,9 +8,11 @@ __PACKAGE__->mk_accessors;
 
 sub validation {
     [
-        id   => [ qw/UINT/ ],
-        name => [ qw/NOT_BLANK ASCII/ ],
-        kana => [ qw/KATAKANA/ ],
+        id        => [ qw/UINT/ ],
+        gender_id => [ qw/UINT/ ],
+        pref_id   => [ qw/UINT/ ],
+        name      => [ qw/NOT_BLANK ASCII/ ],
+        kana      => [ qw/KATAKANA/ ],
         { name => [ qw/id name/ ] } => [ [ 'DBIC_UNIQUE', __PACKAGE__, '!id', 'name' ] ],
     ];
 }

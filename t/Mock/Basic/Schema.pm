@@ -14,8 +14,26 @@ install_table members => schema {
     pk 'id';
     columns qw/
         id
+        gender_id
+        pref_id
         name
         kana
+    /;
+};
+
+install_table genders => schema {
+    pk 'id';
+    columns qw/
+        id
+        name
+    /;
+};
+
+install_table prefectures => schema {
+    pk 'id';
+    columns qw/
+        id
+        name
     /;
 };
 
