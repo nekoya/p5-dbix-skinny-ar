@@ -6,7 +6,10 @@ __PACKAGE__->setup({
     db => 'Mock::Basic',
     validator => {
         module  => 'FormValidator::Simple',
-        plugins => [ 'FormValidator::Simple::Plugin::DBIC::Unique' ],
+        plugins => [
+            'FormValidator::Simple::Plugin::DBIC::Unique',
+            'FormValidator::Simple::Plugin::Japanese',
+        ],
     },
 });
 

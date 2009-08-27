@@ -9,7 +9,8 @@ sub setup_test_db {
     shift->do(q{
         CREATE TABLE languages (
             id   INT,
-            name TEXT
+            name TEXT,
+            kana TEXT
         )
     });
 }
