@@ -176,11 +176,35 @@ sub belongs_to {
     }
 }
 
+sub has_one {
+    my ($class, $method, $params) = @_;
+    croak 'has_one needs method name' unless $method;
+    $params ||= {};
+    my $target = $class->_prepare_target_class($method, $params->{ class });
+    my $column = $params->{ key };
+    unless ( $column ) {
+        ($column = lc $class) =~ s/^.+:://;
+        $column .= '_id';
+    }
+    {
+        no strict 'refs';
+        *{"$class\::$method"} = sub {
+            my $self = shift or return;
+            return $target->find({ $column => $self->id });
+        }
+    }
+}
+
 sub has_many {
-    my ($class, $method, $column, $target) = @_;
+    my ($class, $method, $params) = @_;
     croak 'has_many needs method name' unless $method;
-    $target = $class->_prepare_target_class($method, $target);
-    $column = $method . '_id' unless $column;
+    $params ||= {};
+    my $target = $class->_prepare_target_class($method, $params->{ class });
+    my $column = $params->{ key };
+    unless ( $column ) {
+        ($column = lc $class) =~ s/^.+:://;
+        $column .= '_id';
+    }
     {
         no strict 'refs';
         *{"$class\::$method"} = sub {
