@@ -143,14 +143,20 @@ sub _update_static {
 }
 
 sub delete {
-    my ($class, $args) = @_;
-    if ( ref $class ) {
-        my $self = $class;
-        $self->row->delete;
-    } else {
-        croak 'delete needs where sentence' unless $args;
-        $class->db->delete($class->table, $args);
-    }
+    my $self = shift;
+    my $method = '_delete_' . (ref $self ? 'instance' : 'static');
+    $self->$method(@_);
+}
+
+sub _delete_instance {
+    my ($self) = @_;
+    $self->row->delete;
+}
+
+sub _delete_static {
+    my ($class, $where) = @_;
+    croak 'delete needs where sentence' unless $where;
+    $class->db->delete($class->table, $where);
 }
 
 sub belongs_to {
