@@ -19,7 +19,7 @@ describe 'instance object test' => run {
 
     test 'args(method => column)' => run {
         my $hanako = Mock::Member->find({ name => 'hanako' });
-        is $hanako->gender_id, 2, 'assert gender_id';
+        is $hanako->pref_id, 1, 'assert pref_id';
         ok my $pref = $hanako->prefecture, 'get related record';
         isa_ok $pref, 'Mock::Prefecture';
         is $pref->name, 'tokyo', 'assert prefecture name';
