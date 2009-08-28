@@ -65,7 +65,7 @@ sub setup_test_db {
         {
             id        => 1,
             gender_id => 1,
-            pref_id   => 2,
+            pref_id   => 1,
             name      => 'taro',
             kana      => 'タロウ',
             },
