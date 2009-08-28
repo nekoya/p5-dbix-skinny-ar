@@ -13,15 +13,27 @@ describe 'instance object test' => run {
         my $perl = Mock::Language->find(1);
         ok $perl->update({ name => 'php' }), 'update succeeded';
 
-        my $ruby = Mock::Language->find(1);
-        isa_ok $ruby, 'Mock::Language';
-        is $ruby->id, 1, 'assert id';
-        is $ruby->name, 'php', 'assert name';
+        my $php = Mock::Language->find(1);
+        isa_ok $php, 'Mock::Language';
+        is $php->id, 1, 'assert id';
+        is $php->name, 'php', 'assert name';
+    };
+
+    test 'instance update by setter' => run {
+        my $ruby = Mock::Language->find({ name => 'ruby' });
+        $ruby->name('scala');
+        is $ruby->name, 'scala', 'updated by setter';
+        ok $ruby->update, 'update succeeded';
+
+        my $scala = Mock::Language->find($ruby->id);
+        isa_ok $scala, 'Mock::Language';
+        is $scala->id, $ruby->id, 'assert id';
+        is $scala->name, 'scala', 'assert name (updated)';
     };
 
     test 'instance update failed' => run {
         my $python = Mock::Language->find(2);
-        throws_ok { $python->update({ name => 'ruby' }) } 'FormValidator::Simple::Results';
+        throws_ok { $python->update({ name => 'scala' }) } 'FormValidator::Simple::Results';
         my $result = $@;
         ok $result->has_error, 'validation failed';
         is_deeply [ $result->error ], [ 'name' ], 'validation error happened in name';
