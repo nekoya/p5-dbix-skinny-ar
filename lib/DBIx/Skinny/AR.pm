@@ -7,6 +7,7 @@ use Carp;
 our $VERSION = '0.0.1';
 
 use UNIVERSAL::require;
+use Lingua::EN::Inflect::Number qw/to_S to_PL/;
 
 use Mouse;
 extends 'Mouse::Object', 'Class::Data::Inheritable';
@@ -179,13 +180,7 @@ sub belongs_to {
 sub has_one {
     my ($class, $method, $params) = @_;
     croak 'has_one needs method name' unless $method;
-    $params ||= {};
-    my $target = $class->_prepare_target_class($method, $params->{ class });
-    my $column = $params->{ key };
-    unless ( $column ) {
-        ($column = lc $class) =~ s/^.+:://;
-        $column .= '_id';
-    }
+    my ($target, $column) = $class->_prepare_related_params($method, $params);
     {
         no strict 'refs';
         *{"$class\::$method"} = sub {
@@ -198,13 +193,7 @@ sub has_one {
 sub has_many {
     my ($class, $method, $params) = @_;
     croak 'has_many needs method name' unless $method;
-    $params ||= {};
-    my $target = $class->_prepare_target_class($method, $params->{ class });
-    my $column = $params->{ key };
-    unless ( $column ) {
-        ($column = lc $class) =~ s/^.+:://;
-        $column .= '_id';
-    }
+    my ($target, $column) = $class->_prepare_related_params(to_S($method), $params);
     {
         no strict 'refs';
         *{"$class\::$method"} = sub {
@@ -223,6 +212,18 @@ sub _prepare_target_class {
     }
     $target->require or croak "cannot require $target";
     return $target;
+}
+
+sub _prepare_related_params {
+    my ($class, $method, $params) = @_;
+    $params ||= {};
+    my $target = $class->_prepare_target_class($method, $params->{ class });
+    my $column = $params->{ key };
+    unless ( $column ) {
+        ($column = lc $class) =~ s/^.+:://;
+        $column .= '_id';
+    }
+    return ($target, $column);
 }
 
 1; # Magic true value required at end of module

@@ -1,4 +1,5 @@
 use t::Utils;
+use Mock::Gender;
 use Mock::Prefecture;
 use Test::Declare;
 
@@ -15,8 +16,15 @@ describe 'instance object test' => run {
     };
 
     test 'basic' => run {
+        my $male = Mock::Gender->find({ name => 'male' });
+        ok my $members = $male->members, 'got related rows';
+        is scalar @$members, 1, 'amount of rows';
+        is $members->[0]->name, 'taro', 'first row name';
+    };
+
+    test 'key/class params' => run {
         my $tokyo = Mock::Prefecture->find({ name => 'tokyo' });
-        ok my $members = $tokyo->members, 'get related rows';
+        ok my $members = $tokyo->members, 'got related rows';
         is scalar @$members, 2, 'amount of rows';
         is $members->[0]->name, 'taro', 'first row name';
         is $members->[1]->name, 'hanako', 'second row name';
