@@ -9,7 +9,7 @@ describe 'instance object test' => run {
         Mock::Basic->setup_test_db;
     };
 
-    test 'args(method)' => run {
+    test 'basic' => run {
         my $taro = Mock::Member->find({ name => 'taro' });
         is $taro->gender_id, 1, 'assert gender_id';
         ok my $gen = $taro->gender, 'get related record';
@@ -17,7 +17,7 @@ describe 'instance object test' => run {
         is $gen->name, 'male', 'assert gender name';
     };
 
-    test 'args(method => column)' => run {
+    test 'args key' => run {
         my $hanako = Mock::Member->find({ name => 'hanako' });
         is $hanako->pref_id, 1, 'assert pref_id';
         ok my $pref = $hanako->prefecture, 'get related record';
@@ -25,7 +25,7 @@ describe 'instance object test' => run {
         is $pref->name, 'tokyo', 'assert prefecture name';
     };
 
-    test 'args(method => column, target_class)' => run {
+    test 'args key/class' => run {
         my $taro = Mock::Member->find({ name => 'taro' });
         is $taro->gender_id, 1, 'assert gender_id';
         ok my $gen = $taro->gen, 'get related record';

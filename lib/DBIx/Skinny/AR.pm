@@ -160,10 +160,11 @@ sub _delete_static {
 }
 
 sub belongs_to {
-    my ($class, $method, $column, $target) = @_;
+    my ($class, $method, $params) = @_;
     croak 'belongs_to needs method name' unless $method;
-    $target = $class->_prepare_target_class($method, $target);
-    $column = $method . '_id' unless $column;
+    $params ||= {};
+    my $target = $class->_prepare_target_class($method, $params->{ class });
+    my $column = $params->{ key } || $method . '_id';
     {
         no strict 'refs';
         *{"$class\::$method"} = sub {

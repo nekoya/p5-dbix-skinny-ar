@@ -19,9 +19,16 @@ sub validation {
 }
 
 __PACKAGE__->belongs_to('gender');
-__PACKAGE__->belongs_to('gen' => 'gender_id', 'Mock::Gender');
-__PACKAGE__->belongs_to('prefecture' => 'pref_id');
+__PACKAGE__->belongs_to('prefecture' => { key => 'pref_id' });
+__PACKAGE__->belongs_to('gen' => {
+        key   => 'gender_id',
+        class => 'Mock::Gender',
+    });
 
 __PACKAGE__->has_one('namecard');
+__PACKAGE__->has_one('nc' => {
+        key   => 'member_id',
+        class => 'Mock::Namecard',
+    });
 
 1;
