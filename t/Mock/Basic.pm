@@ -38,6 +38,14 @@ sub setup_test_db {
         )
     });
 
+    $db->do(q{
+        CREATE TABLE namecards (
+            id        INT,
+            member_id INT,
+            nick      TEXT
+        )
+    });
+
     $db->bulk_insert('languages', [
         {
             id   => 1,
@@ -89,6 +97,14 @@ sub setup_test_db {
         {
             id   => 2,
             name => 'kyoto',
+        },
+    ]);
+
+    $db->bulk_insert('namecards', [
+        {
+            id        => 1,
+            member_id => 2,
+            nick      => 'nahanaha',
         },
     ]);
 }

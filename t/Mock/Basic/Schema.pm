@@ -37,4 +37,13 @@ install_table prefectures => schema {
     /;
 };
 
+install_table namecards => schema {
+    pk 'id';
+    columns qw/
+        id
+        member_id
+        nick
+    /;
+};
+
 1;

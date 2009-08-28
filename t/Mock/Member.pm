@@ -22,4 +22,6 @@ __PACKAGE__->belongs_to('gender');
 __PACKAGE__->belongs_to('gen' => 'gender_id', 'Mock::Gender');
 __PACKAGE__->belongs_to('prefecture' => 'pref_id');
 
+__PACKAGE__->has_one('namecard');
+
 1;
