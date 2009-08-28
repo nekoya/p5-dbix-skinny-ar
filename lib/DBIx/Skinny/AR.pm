@@ -123,10 +123,23 @@ sub create {
 }
 
 sub update {
+    my $self = shift;
+    my $method = '_update_' . (ref $self ? 'instance' : 'static');
+    $self->$method(@_);
+}
+
+sub _update_instance {
     my ($self, $args) = @_;
     my $result = $self->validate($args);
     croak $result if $result->has_error;
     $self->row->update($args);
+}
+
+sub _update_static {
+    my ($class, $args, $where) = @_;
+    my $result = $class->validate($args);
+    croak $result if $result->has_error;
+    $class->db->update($class->table, $args, $where);
 }
 
 sub delete {
