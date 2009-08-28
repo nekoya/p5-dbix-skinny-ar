@@ -33,6 +33,15 @@ describe 'instance object test' => run {
         is $gen->name, 'male', 'assert gender name';
     };
 
+    test 'related row was not found' => run {
+        my $taro = Mock::Member->find({ name => 'taro' });
+        $taro->gender_id('');
+        is $taro->gender, undef, 'return undef when foreign_key is null';
+
+        $taro->gender_id(3);
+        throws_ok { $taro->gender } qr/^related row was not found/, 'threw exception if related row was not found';
+    };
+
     cleanup {
         unlink './t/main.db';
     };

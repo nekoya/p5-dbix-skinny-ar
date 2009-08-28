@@ -168,7 +168,9 @@ sub belongs_to {
         no strict 'refs';
         *{"$class\::$method"} = sub {
             my $self = shift or return;
-            return $target->find({ id => $self->$column }) if $self->$column;
+            return unless $self->$column;
+            my $related = $target->find({ id => $self->$column })
+                or croak "related row was not found";
         }
     }
 }
