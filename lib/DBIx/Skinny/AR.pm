@@ -218,12 +218,14 @@ sub many_to_many {
         no strict 'refs';
         *{"$class\::$method"} = sub {
             my $self = shift or return;
+            my $where = shift || {};
             my @ids;
             my $rs = $self->db->search($glue, { $self_key => $self->id });
             while ( my $row = $rs->next ) {
                 push @ids, $row->$foreign_key;
             }
-            return @ids ? $target->find_all({ id => { IN => \@ids } }) : [];
+            $where->{ id } = { IN => \@ids };
+            return @ids ? $target->find_all($where) : [];
         }
     }
 }
