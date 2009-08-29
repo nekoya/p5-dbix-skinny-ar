@@ -229,10 +229,7 @@ sub many_to_many {
 sub _prepare_target_class {
     my ($self, $method, $target) = @_;
     my $class = ref $self || $self;
-    unless ( $target ) {
-        ($target = $class) =~ s/[^:]+$//;
-        $target .= ucfirst $method;
-    }
+    $target ||= $class->_get_namespace . ucfirst $method;
     $target->require or croak "cannot require $target";
     return $target;
 }
@@ -241,11 +238,7 @@ sub _prepare_related_params {
     my ($class, $method, $params) = @_;
     $params ||= {};
     my $target = $class->_prepare_target_class($method, $params->{ class });
-    my $column = $params->{ key };
-    unless ( $column ) {
-        ($column = lc $class) =~ s/^.+:://;
-        $column .= '_id';
-    }
+    my $column = $params->{ key } || lc $class->_get_suffix . '_id';
     return ($target, $column);
 }
 
