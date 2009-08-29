@@ -198,7 +198,9 @@ sub has_many {
         no strict 'refs';
         *{"$class\::$method"} = sub {
             my $self = shift or return;
-            return $target->find_all({ $column => $self->id });
+            my $where = shift || {};
+            $where->{ $column } = $self->id;
+            return $target->find_all($where);
         }
     }
 }

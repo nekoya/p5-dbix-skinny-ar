@@ -30,6 +30,13 @@ describe 'instance object test' => run {
         is $members->[1]->name, 'hanako', 'second row name';
     };
 
+    test 'additional where conds' => run {
+        my $tokyo = Mock::Prefecture->find({ name => 'tokyo' });
+        ok my $members = $tokyo->members({ name => 'hanako' }), 'got related rows with where conds';
+        is scalar @$members, 1, 'amount of rows';
+        is $members->[0]->name, 'hanako', 'first row name';
+    };
+
     cleanup {
         unlink './t/main.db';
     };
