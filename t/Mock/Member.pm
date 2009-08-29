@@ -31,4 +31,11 @@ __PACKAGE__->has_one('nc' => {
         class => 'Mock::Namecard',
     });
 
+__PACKAGE__->many_to_many('languages' => {
+        glue   => 'member_languages',
+        target => 'Mock::Language',
+        key    => 'language_id',
+        self   => 'member_id',
+    });
+
 1;

@@ -25,6 +25,14 @@ sub setup_test_db {
     });
 
     $db->do(q{
+        CREATE TABLE member_languages (
+            id          INT,
+            member_id   INT,
+            language_id INT
+        )
+    });
+
+    $db->do(q{
         CREATE TABLE genders (
             id   INT,
             name TEXT
@@ -75,6 +83,21 @@ sub setup_test_db {
             pref_id   => 1,
             name      => 'hanako',
             kana      => 'ハナコ',
+        },
+    ]);
+
+    $db->bulk_insert('member_languages', [
+        {
+            member_id   => 1,
+            language_id => 1,
+        },
+        {
+            member_id   => 2,
+            language_id => 1,
+        },
+        {
+            member_id   => 1,
+            language_id => 2,
         },
     ]);
 

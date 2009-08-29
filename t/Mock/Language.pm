@@ -14,4 +14,6 @@ sub validation {
     ];
 }
 
+__PACKAGE__->many_to_many('members' => { glue => 'member_languages' });
+
 1;

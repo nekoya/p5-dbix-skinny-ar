@@ -21,6 +21,15 @@ install_table members => schema {
     /;
 };
 
+install_table member_languages => schema {
+    pk 'id';
+    columns qw/
+        id
+        member_id
+        language_id
+    /;
+};
+
 install_table genders => schema {
     pk 'id';
     columns qw/

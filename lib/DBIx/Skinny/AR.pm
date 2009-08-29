@@ -203,6 +203,29 @@ sub has_many {
     }
 }
 
+sub many_to_many {
+    my ($class, $method, $params) = @_;
+    croak 'many_to_many needs method name' unless $method;
+    $params ||= {};
+    my $glue = $params->{ glue } or croak 'many_to_many needs glue class name';
+    my $target = $params->{ target }
+        || $class->_get_namespace($class) . ucfirst to_S($method);
+    my $foreign_key = $params->{ key } || to_S($method) . '_id';
+    my $self_key = $params->{ self } || $class->_get_suffix(lc $class) . '_id';
+    {
+        no strict 'refs';
+        *{"$class\::$method"} = sub {
+            my $self = shift or return;
+            my @ids;
+            my $rs = $self->db->search($glue, { $self_key => $self->id });
+            while ( my $row = $rs->next ) {
+                push @ids, $row->$foreign_key;
+            }
+            return @ids ? $target->find_all({ id => { IN => \@ids } }) : [];
+        }
+    }
+}
+
 sub _prepare_target_class {
     my ($self, $method, $target) = @_;
     my $class = ref $self || $self;
@@ -224,6 +247,18 @@ sub _prepare_related_params {
         $column .= '_id';
     }
     return ($target, $column);
+}
+
+sub _get_namespace {
+    my $class = shift;
+    $class =~ s/[^:]+$//;
+    return $class;
+}
+
+sub _get_suffix {
+    my $class = shift;
+    $class =~ s/^.+:://;
+    return $class;
 }
 
 1; # Magic true value required at end of module
