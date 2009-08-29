@@ -209,9 +209,9 @@ sub many_to_many {
     $params ||= {};
     my $glue = $params->{ glue } or croak 'many_to_many needs glue class name';
     my $target = $params->{ target }
-        || $class->_get_namespace($class) . ucfirst to_S($method);
+        || $class->_get_namespace . ucfirst to_S($method);
     my $foreign_key = $params->{ key } || to_S($method) . '_id';
-    my $self_key = $params->{ self } || $class->_get_suffix(lc $class) . '_id';
+    my $self_key = $params->{ self } || lc $class->_get_suffix . '_id';
     {
         no strict 'refs';
         *{"$class\::$method"} = sub {
