@@ -35,6 +35,12 @@ describe 'instance object test' => run {
         is $languages->[2]->name, 'perl', 'third  language name';
     };
 
+    test 'call find_all as instance method' => run {
+        my $model = Mock::Language->new;
+        ok my $languages = $model->find_all;
+        is scalar @$languages, 3, 'amount of rows';
+    };
+
     cleanup {
         unlink './t/main.db';
     };

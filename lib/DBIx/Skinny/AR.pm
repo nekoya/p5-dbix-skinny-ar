@@ -78,15 +78,20 @@ sub get_where {
 }
 
 sub find {
-    my ($class, $where, $opt) = @_;
+    my ($self, $where, $opt) = @_;
+    my $class = ref $self || $self;
     $where = $class->get_where($where);
     my $row = $class->db->single($class->table, $where, $opt) or return;
-    my $self = $class->new({ row => $row });
-    return $self;
+    if ( ref $self ) {
+        $self->row($row);
+        return $self;
+    }
+    return $class->new({ row => $row });
 }
 
 sub find_all {
-    my ($class, $where, $opt) = @_;
+    my ($self, $where, $opt) = @_;
+    my $class = ref $self || $self;
     $where = $class->get_where($where);
     my $rs = $class->db->search($class->table, $where, $opt);
     my @rows;

@@ -44,6 +44,14 @@ describe 'instance object test' => run {
         is $ruby->name, 'ruby', 'name is ruby';
     };
 
+    test 'call find as instance method' => run {
+        my $model = Mock::Language->new;
+        isa_ok $model, 'Mock::Language';
+        ok my $perl = $model->find(1), 'find by default column(id)';
+        is_deeply $model, $perl, '$model and $perl are same object';
+        is $perl->name, 'perl', 'name is perl';
+    };
+
     cleanup {
         unlink './t/main.db';
     };
