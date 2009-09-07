@@ -1,11 +1,8 @@
 package DBIx::Skinny::AR;
 
-use warnings;
-use strict;
-use Carp;
-
 our $VERSION = '0.0.1';
 
+use Carp;
 use UNIVERSAL::require;
 use Lingua::EN::Inflect::Number qw/to_S to_PL/;
 
