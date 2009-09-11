@@ -99,7 +99,8 @@ sub find_all {
 }
 
 sub count {
-    my ($class, $args) = @_;
+    my ($self, $args) = @_;
+    my $class = ref $self || $self;
     $class->db->count($class->table, 'id', $args);
 }
 
@@ -118,11 +119,17 @@ sub validate {
 }
 
 sub create {
-    my ($class, $args) = @_;
+    my ($self, $args) = @_;
+    my $class = ref $self || $self;
     my $result = $class->validate($args);
     croak $result if $result->has_error;
     my $row = $class->db->insert($class->table, $args);
-    $class->new({ row => $row });
+    croak 'failed DB insert' unless $row;
+    if ( ref $self ) {
+        $self->row($row);
+        return $self;
+    }
+    return $class->new({ row => $row });
 }
 
 sub update {
