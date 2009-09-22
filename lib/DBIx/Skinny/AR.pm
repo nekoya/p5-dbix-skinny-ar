@@ -95,8 +95,9 @@ sub count {
 
 sub create {
     my ($self, $args) = @_;
-    my $row = $self->db->create($self->table, $args);
-    $self->_create_instance($row);
+    my $class = ref $self || $self;
+    my $row = $self->db->insert($self->table, $args);
+    $class->new({ row => $row });
 }
 
 sub delete {

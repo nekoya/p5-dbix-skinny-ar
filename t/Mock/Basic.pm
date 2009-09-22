@@ -9,14 +9,14 @@ sub setup_test_db {
     my $db = shift;
     $db->do(q{
         CREATE TABLE languages (
-            id   INT UNIQUE PRIMARY KEY,
-            name TEXT
+            id   INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT UNIQUE
         )
     });
 
     $db->do(q{
         CREATE TABLE members (
-            id        INT UNIQUE PRIMARY KEY,
+            id        INTEGER PRIMARY KEY AUTOINCREMENT,
             gender    TEXT,
             pref_id   INT,
             name      TEXT,
@@ -26,7 +26,7 @@ sub setup_test_db {
 
     $db->do(q{
         CREATE TABLE member_languages (
-            id          INT UNIQUE PRIMARY KEY,
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
             member_id   INT,
             language_id INT
         )
@@ -40,14 +40,14 @@ sub setup_test_db {
 
     $db->do(q{
         CREATE TABLE prefectures (
-            id   INT UNIQUE PRIMARY KEY,
+            id   INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT
         )
     });
 
     $db->do(q{
         CREATE TABLE namecards (
-            id        INT UNIQUE PRIMARY KEY,
+            id   INTEGER PRIMARY KEY AUTOINCREMENT,
             member_id INT,
             nick      TEXT
         )

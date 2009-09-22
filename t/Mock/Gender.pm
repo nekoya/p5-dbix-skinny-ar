@@ -8,7 +8,7 @@ __PACKAGE__->table('genders');
 subtype 'Gender'
     => as Str
     => where { $_ =~ /^(male|female)$/ }
-    => message { "$_ was not a possible gender" };
+    => message { "$_ is not a possible gender" };
 
 has 'name' => (is => 'rw', isa => 'Gender');
 
