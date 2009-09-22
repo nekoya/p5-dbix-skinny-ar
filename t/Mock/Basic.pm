@@ -9,14 +9,14 @@ sub setup_test_db {
     my $db = shift;
     $db->do(q{
         CREATE TABLE languages (
-            id   INT,
+            id   INT UNIQUE PRIMARY KEY,
             name TEXT
         )
     });
 
     $db->do(q{
         CREATE TABLE members (
-            id        INT,
+            id        INT UNIQUE PRIMARY KEY,
             gender_id INT,
             pref_id   INT,
             name      TEXT,
@@ -26,7 +26,7 @@ sub setup_test_db {
 
     $db->do(q{
         CREATE TABLE member_languages (
-            id          INT,
+            id          INT UNIQUE PRIMARY KEY,
             member_id   INT,
             language_id INT
         )
@@ -34,21 +34,21 @@ sub setup_test_db {
 
     $db->do(q{
         CREATE TABLE genders (
-            id   INT,
+            id   INT UNIQUE PRIMARY KEY,
             name TEXT
         )
     });
 
     $db->do(q{
         CREATE TABLE prefectures (
-            id   INT,
+            id   INT UNIQUE PRIMARY KEY,
             name TEXT
         )
     });
 
     $db->do(q{
         CREATE TABLE namecards (
-            id        INT,
+            id        INT UNIQUE PRIMARY KEY,
             member_id INT,
             nick      TEXT
         )
