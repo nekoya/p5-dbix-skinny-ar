@@ -12,7 +12,7 @@ extends any_moose('::Object'), 'Class::Data::Inheritable';
 has 'row' => (
     is      => 'rw',
     isa     => 'DBIx::Skinny::Row',
-    trigger => \&_import_columns,
+    trigger => \&_set_columns,
 );
 
 no Any::Moose;
@@ -31,11 +31,24 @@ sub _pk {
     $self->db->schema->schema_info->{ $self->table }->{ pk };
 }
 
-sub _import_columns {
+sub _set_columns {
     my ($self, $row) = @_;
     for my $col ( @{ $self->_columns } ) {
-        $self->$col($row->$col) if $self->can($col);
+        $self->$col(
+            (ref $row eq 'HASH')
+            ? $row->{ $col }
+            : $row->$col
+        ) if $self->can($col);
     }
+}
+
+sub _get_columns {
+    my ($self) = @_;
+    my $row;
+    for my $col ( @{ $self->_columns } ) {
+        $row->{ $col } = $self->$col if $self->can($col);
+    }
+    return $row;
 }
 
 sub setup {
@@ -96,8 +109,11 @@ sub count {
 sub create {
     my ($self, $args) = @_;
     my $class = ref $self || $self;
+    my $obj = $class->new;
+    $obj->_set_columns($args);
     my $row = $self->db->insert($self->table, $args);
-    $class->new({ row => $row });
+    $obj->row($row);
+    return $obj;
 }
 
 sub delete {
