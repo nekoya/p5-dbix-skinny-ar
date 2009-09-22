@@ -6,91 +6,81 @@ use Carp;
 use UNIVERSAL::require;
 use Lingua::EN::Inflect::Number qw/to_S to_PL/;
 
-use Mouse;
-extends 'Mouse::Object', 'Class::Data::Inheritable';
-
-__PACKAGE__->mk_classdata('db');
-__PACKAGE__->mk_classdata('validator' => {
-    module  => 'FormValidator::Simple',
-    plugins => [],
-});
+use Any::Moose;
+extends any_moose('::Object'), 'Class::Data::Inheritable';
 
 has 'row' => (
-    is  => 'rw',
-    isa => 'DBIx::Skinny::Row',
+    is      => 'rw',
+    isa     => 'DBIx::Skinny::Row',
+    trigger => \&_import_columns,
 );
 
-no Mouse;
+no Any::Moose;
+__PACKAGE__->meta->make_immutable;
 
-sub table { croak 'implement table name' }
-sub validation { croak 'implement validation rules' }
-sub default_search_column { 'id' }
+__PACKAGE__->mk_classdata('db');
+__PACKAGE__->mk_classdata('table');
 
-sub debug {
-    my ($class, $debug) = @_;
-    $class->db->attribute->{ profile } = $debug;
+sub columns {
+    my ($self) = @_;
+    $self->db->schema->schema_info->{ $self->table }->{ columns };
 }
 
-sub query_log {
-    my $class = shift;
-    $class->db->profiler->query_log(@_);
+sub pk {
+    my ($self) = @_;
+    $self->db->schema->schema_info->{ $self->table }->{ pk };
+}
+
+sub _import_columns {
+    my ($self, $row) = @_;
+    for my $col ( @{ $self->columns } ) {
+        $self->$col($row->$col) if $self->can($col);
+    }
 }
 
 sub setup {
-    my ($class, $args) = @_;
-
-    croak "implement db name" unless $args->{ db };
-    $args->{ db }->require or croak "failed to load " . $args->{ db };
-    $class->db($args->{ db });
-
-    my $validator = $args->{ validator };
-    $validator->{ module } ||= $class->validator->{ module };
-    $validator->{ module }->require;
-
-    for my $plugin ( @{ $validator->{ plugins } } ) {
-        $validator->{ module }->load_plugin($plugin);
-    }
-    $class->validator($validator);
+    my ($class, $db_class) = @_;
+    $db_class->require;
+    __PACKAGE__->db($db_class);
 }
 
-sub mk_accessors {
-    my ($class) = @_;
-    my $cols = $class->db->schema->schema_info->{ $class->table }->{ columns };
-    for my $col ( @$cols ) {
-        next if $class->can($col);
-        no strict 'refs';
-        *{"$class\::$col"} = sub {
-            my ($self, $val) = @_;
-            return $self->row->$col unless defined $val;
-            $self->row->set({ $col => $val });
-        };
-    }
+sub debug {
+    my ($self, $debug) = @_;
+    $self->db->attribute->{ profile } = $debug;
 }
 
-sub get_where {
-    my ($class, $where) = @_;
+sub query_log {
+    my ($self) = @_;
+    $self->db->profiler->query_log(@_);
+}
+
+sub _get_where {
+    my ($self, $where) = @_;
     return $where if ref $where eq 'HASH';
-    return {} unless defined $where;
-    return { $class->default_search_column => $where };
+    return {} unless $where;
+    return { id => $where } if !ref $where && $where =~ /^\d+$/;
+    croak 'invalid where parameter';
 }
 
 sub find {
     my ($self, $where, $opt) = @_;
     my $class = ref $self || $self;
-    $where = $class->get_where($where);
-    my $row = $class->db->single($class->table, $where, $opt) or return;
-    if ( ref $self ) {
-        $self->row($row);
-        return $self;
-    }
-    return $class->new({ row => $row });
+    my $row = $self->db->single(
+        $self->table,
+        $self->_get_where($where),
+        $opt
+    ) or return;
+    $class->new({ row => $row });
 }
 
 sub find_all {
     my ($self, $where, $opt) = @_;
     my $class = ref $self || $self;
-    $where = $class->get_where($where);
-    my $rs = $class->db->search($class->table, $where, $opt);
+    my $rs = $self->db->search(
+        $self->table,
+        $self->_get_where($where),
+        $opt
+    );
     my @rows;
     while ( my $row = $rs->next ) {
         push @rows, $class->new({ row => $row });
@@ -100,74 +90,27 @@ sub find_all {
 
 sub count {
     my ($self, $args) = @_;
-    my $class = ref $self || $self;
-    $class->db->count($class->table, 'id', $args);
-}
-
-sub validate {
-    my ($self, $_args) = @_;
-    my $class = ref $self || $self;
-    my $args;
-    if ( ref $self ) {
-        $args = $self->row->get_columns;
-        @$args{keys %$_args} = values %$_args if defined $_args;
-    } else {
-        $args = $_args or return;
-    }
-    my $validator = $class->validator->{ module };
-    $validator->check($args => $class->validation);
+    $self->db->count($self->table, $self->pk, $args);
 }
 
 sub create {
     my ($self, $args) = @_;
-    my $class = ref $self || $self;
-    my $result = $class->validate($args);
-    croak $result if $result->has_error;
-    my $row = $class->db->insert($class->table, $args);
-    if ( ref $self ) {
-        $self->row($row);
-        return $self;
-    }
-    return $class->new({ row => $row });
-}
-
-sub update {
-    my $self = shift;
-    my $method = '_update_' . (ref $self ? 'instance' : 'static');
-    $self->$method(@_);
-}
-
-sub _update_instance {
-    my ($self, $args) = @_;
-    my $result = $self->validate($args);
-    croak $result if $result->has_error;
-    $self->row->update($args);
-}
-
-sub _update_static {
-    my ($class, $args, $where) = @_;
-    my $result = $class->validate($args);
-    croak $result if $result->has_error;
-    $class->db->update($class->table, $args, $where);
+    my $row = $self->db->create($self->table, $args);
+    $self->_create_instance($row);
 }
 
 sub delete {
-    my $self = shift;
-    my $method = '_delete_' . (ref $self ? 'instance' : 'static');
-    $self->$method(@_);
+    my ($self, $args) = @_;
+    if ( ref $self ) {
+        croak 'row object is not loaded' unless $self->row;
+        $self->row->delete;
+    } else {
+        croak 'delete needs args' unless $args;
+        $self->db->delete($self->table, $args);
+    }
 }
 
-sub _delete_instance {
-    my ($self) = @_;
-    $self->row->delete;
-}
-
-sub _delete_static {
-    my ($class, $where) = @_;
-    croak 'delete needs where sentence' unless $where;
-    $class->db->delete($class->table, $where);
-}
-
+=head
 sub belongs_to {
     my ($class, $method, $params) = @_;
     croak 'belongs_to needs method name' unless $method;
@@ -265,6 +208,7 @@ sub _get_suffix {
     $class =~ s/^.+:://;
     return $class;
 }
+=cut
 
 1;
 __END__
