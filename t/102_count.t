@@ -23,7 +23,7 @@ END   { unlink './t/main.db' }
 }
 
 {
-    note 'call count as instance method with pk not id';
+    note 'call count as instance method (custom pk)';
     my $model = Mock::Gender->new;
     is($model->count({ name => 'man' }), 0, 'no amount of count');
     is($model->count, 2, 'count all');
