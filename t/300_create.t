@@ -24,10 +24,6 @@ describe 'instance object test' => run {
         is_deeply [ $result->error('name') ], [ 'ASCII' ], 'error is ASCII';
     };
 
-    test 'db insert failed' => run {
-        throws_ok { Mock::Language->create({ id => 1, name => 'perl6' }) } qr/^failed DB insert/, 'failed DB insert';
-    };
-
     test 'call create as instance method' => run {
         my $model = Mock::Language->new;
         isa_ok $model, 'Mock::Language';

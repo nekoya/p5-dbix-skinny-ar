@@ -124,7 +124,6 @@ sub create {
     my $result = $class->validate($args);
     croak $result if $result->has_error;
     my $row = $class->db->insert($class->table, $args);
-    croak 'failed DB insert' unless $row;
     if ( ref $self ) {
         $self->row($row);
         return $self;
