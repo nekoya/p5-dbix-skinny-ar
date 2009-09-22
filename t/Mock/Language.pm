@@ -4,7 +4,7 @@ extends 'Mock::AR';
 
 __PACKAGE__->table('languages');
 
-has 'id'   => (is => 'rw', isa => 'Int');
+has 'id'   => (is => 'rw', isa => 'Undef | Int');
 has 'name' => (is => 'rw', isa => 'Str');
 
 #__PACKAGE__->many_to_many('members' => { glue => 'member_languages' });
