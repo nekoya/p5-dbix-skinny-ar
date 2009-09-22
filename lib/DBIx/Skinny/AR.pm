@@ -58,7 +58,7 @@ sub _get_where {
     my ($self, $where) = @_;
     return $where if ref $where eq 'HASH';
     return {} unless $where;
-    return { id => $where } if !ref $where && $where =~ /^\d+$/;
+    return { $self->pk => $where } if !ref $where;
     croak 'invalid where parameter';
 }
 
