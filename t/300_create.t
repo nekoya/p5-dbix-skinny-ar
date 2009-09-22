@@ -1,6 +1,7 @@
 use lib './t';
 use FindBin::libs;
 use Test::More 'no_plan';
+use Test::Exception;
 use Mock::Language;
 use Mock::Gender;
 
@@ -27,6 +28,8 @@ END   { unlink './t/main.db' }
 {
     note 'create validation failed';
     my $model = Mock::Gender->new;
-    throws_ok { $model->create({ name => 'man' }) };
+    throws_ok { $model->create({ name => 'man' }) }
+        qr/^Attribute \(name\) does not pass the type constraint/,
+        'attribute error';
     is $model->find({ name => 'man' }), undef, 'record not inserted';
 }
