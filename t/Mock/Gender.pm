@@ -1,19 +1,17 @@
 package Mock::Gender;
 use Any::Moose;
+use Any::Moose '::Util::TypeConstraints';
 extends 'Mock::AR';
 
-sub table { 'genders' }
+__PACKAGE__->table('genders');
 
-__PACKAGE__->mk_accessors;
+subtype 'Gender'
+    => as Str
+    => where { $_ =~ /^(male|female)$/ }
+    => message { "$_ was not a possible gender" };
 
-sub validation {
-    [
-        id   => [ qw/UINT/ ],
-        name => [ qw/NOT_BLANK ASCII/ ],
-        { name => [ qw/id name/ ] } => [ [ 'DBIC_UNIQUE', __PACKAGE__, '!id', 'name' ] ],
-    ];
-}
+has 'name' => (is => 'rw', isa => 'Gender');
 
-__PACKAGE__->has_many('members');
+#__PACKAGE__->has_many('members');
 
 1;

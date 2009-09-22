@@ -17,7 +17,7 @@ sub setup_test_db {
     $db->do(q{
         CREATE TABLE members (
             id        INT UNIQUE PRIMARY KEY,
-            gender_id INT,
+            gender    TEXT,
             pref_id   INT,
             name      TEXT,
             kana      TEXT
@@ -34,8 +34,7 @@ sub setup_test_db {
 
     $db->do(q{
         CREATE TABLE genders (
-            id   INT UNIQUE PRIMARY KEY,
-            name TEXT
+            name TEXT PRIMARY KEY
         )
     });
 
@@ -72,14 +71,14 @@ sub setup_test_db {
     $db->bulk_insert('members', [
         {
             id        => 1,
-            gender_id => 1,
+            gender    => 'male',
             pref_id   => 1,
             name      => 'taro',
             kana      => 'タロウ',
         },
         {
             id        => 2,
-            gender_id => 2,
+            gender    => 'female',
             pref_id   => 1,
             name      => 'hanako',
             kana      => 'ハナコ',
@@ -102,14 +101,8 @@ sub setup_test_db {
     ]);
 
     $db->bulk_insert('genders', [
-        {
-            id   => 1,
-            name => 'male',
-        },
-        {
-            id   => 2,
-            name => 'female',
-        },
+        { name => 'male'   },
+        { name => 'female' },
     ]);
 
     $db->bulk_insert('prefectures', [

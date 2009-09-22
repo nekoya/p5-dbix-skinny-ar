@@ -14,7 +14,7 @@ install_table members => schema {
     pk 'id';
     columns qw/
         id
-        gender_id
+        gender
         pref_id
         name
         kana
@@ -31,9 +31,8 @@ install_table member_languages => schema {
 };
 
 install_table genders => schema {
-    pk 'id';
+    pk 'name';
     columns qw/
-        id
         name
     /;
 };
