@@ -2,6 +2,7 @@ use lib './t';
 use FindBin::libs;
 use Test::More 'no_plan';
 use Mock::Language;
+use Mock::Gender;
 
 BEGIN { Mock::Basic->setup_test_db }
 END   { unlink './t/main.db' }
@@ -24,7 +25,7 @@ END   { unlink './t/main.db' }
 
     ok my $ruby = Mock::Language->find(undef, { order_by => { id => 'desc' } }), 'find last row';
     isa_ok $ruby, 'Mock::Language';
-    is $ruby->name, 'ruby', 'name is ruby';
+    is $ruby->name, 'ruby', 'assert name';
 }
 
 {
@@ -48,5 +49,28 @@ END   { unlink './t/main.db' }
 
     ok my $ruby = $model->find(undef, { order_by => { id => 'desc' } }), 'find last row';
     isa_ok $ruby, 'Mock::Language';
-    is $ruby->name, 'ruby', 'name is ruby';
+    is $ruby->name, 'ruby', 'assert name';
+}
+
+{
+    note 'call find as instance method (custom pk)';
+    my $model = Mock::Gender->new;
+
+    is($model->find({ name => 'man' }), undef, 'return undef when record was not exists');
+
+    ok my $male = $model->find('male'), 'find by pk';
+    isa_ok $male, 'Mock::Gender';
+    is $male->name, 'male', 'assert name';
+
+    ok my $female = $model->find({ name => 'female' }), 'find by hashref';
+    isa_ok $female, 'Mock::Gender';
+    is $female->name, 'female', 'assert name';
+
+    ok my $first = $model->find, 'find no args';
+    isa_ok $first, 'Mock::Gender';
+    is $first->name, 'male', 'assert name';
+
+    ok my $ordered = $model->find(undef, { order_by => 'name' }), 'find last row';
+    isa_ok $ordered, 'Mock::Gender';
+    is $ordered->name, 'female', 'assert name';
 }
