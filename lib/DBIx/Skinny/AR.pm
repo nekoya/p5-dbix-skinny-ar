@@ -21,19 +21,19 @@ __PACKAGE__->meta->make_immutable;
 __PACKAGE__->mk_classdata('db');
 __PACKAGE__->mk_classdata('table');
 
-sub columns {
+sub _columns {
     my ($self) = @_;
     $self->db->schema->schema_info->{ $self->table }->{ columns };
 }
 
-sub pk {
+sub _pk {
     my ($self) = @_;
     $self->db->schema->schema_info->{ $self->table }->{ pk };
 }
 
 sub _import_columns {
     my ($self, $row) = @_;
-    for my $col ( @{ $self->columns } ) {
+    for my $col ( @{ $self->_columns } ) {
         $self->$col($row->$col) if $self->can($col);
     }
 }
@@ -58,7 +58,7 @@ sub _get_where {
     my ($self, $where) = @_;
     return $where if ref $where eq 'HASH';
     return {} unless $where;
-    return { $self->pk => $where } if !ref $where;
+    return { $self->_pk => $where } if !ref $where;
     croak 'invalid where parameter';
 }
 
@@ -90,7 +90,7 @@ sub find_all {
 
 sub count {
     my ($self, $args) = @_;
-    $self->db->count($self->table, $self->pk, $args);
+    $self->db->count($self->table, $self->_pk, $args);
 }
 
 sub create {
