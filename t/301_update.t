@@ -1,65 +1,81 @@
-use t::Utils;
+use lib './t';
+use FindBin::libs;
+use Test::More 'no_plan';
+use Test::Exception;
 use Mock::Language;
-use Test::Declare;
+use Mock::Gender;
 
-plan tests => blocks;
+BEGIN { Mock::Basic->setup_test_db }
+END   { unlink './t/main.db' }
 
-describe 'instance object test' => run {
-    init {
-        Mock::Basic->setup_test_db;
-    };
+{
+    note 'row object update by save method';
+    my $before = Mock::Language->find(1);
+    is $before->name, 'perl', 'assert name before save';
+    $before->name('php');
+    ok $before->save, 'update succeeded';
 
-    test 'instance update succeeded' => run {
-        my $perl = Mock::Language->find(1);
-        ok $perl->update({ name => 'php' }), 'update succeeded';
+    my $after = Mock::Language->find(1);
+    isa_ok $after, 'Mock::Language';
+    is $after->id, 1, 'assert id';
+    is $after->name, 'php', 'assert name';
+}
 
-        my $php = Mock::Language->find(1);
-        isa_ok $php, 'Mock::Language';
-        is $php->id, 1, 'assert id';
-        is $php->name, 'php', 'assert name';
-    };
+{
+    note 'row object update by update method';
+    my $before = Mock::Language->find(1);
+    is $before->name, 'php', 'assert name before update';
+    ok $before->update({ name => 'perl' }), 'update succeeded';
+    is $before->name, 'perl', 'assert name after update';
 
-    test 'instance update by setter' => run {
-        my $ruby = Mock::Language->find({ name => 'ruby' });
-        $ruby->name('scala');
-        is $ruby->name, 'scala', 'updated by setter';
-        ok $ruby->update, 'update succeeded';
+    my $after = Mock::Language->find(1);
+    isa_ok $after, 'Mock::Language';
+    is $after->id, 1, 'assert id';
+    is $after->name, 'perl', 'assert name';
 
-        my $scala = Mock::Language->find($ruby->id);
-        isa_ok $scala, 'Mock::Language';
-        is $scala->id, $ruby->id, 'assert id';
-        is $scala->name, 'scala', 'assert name (updated)';
-    };
+    $after->name('php');
+    ok $after->update, 'update with no args (same as save)';
+    is(Mock::Language->find(1)->name, 'php', 'assert name');
 
-    test 'instance update failed' => run {
-        my $python = Mock::Language->find(2);
-        throws_ok { $python->update({ name => 'scala' }) } 'FormValidator::Simple::Results';
-        my $result = $@;
-        ok $result->has_error, 'validation failed';
-        is_deeply [ $result->error ], [ 'name' ], 'validation error happened in name';
-        is_deeply [ $result->error('name') ], [ 'DBIC_UNIQUE' ], 'error is DBIC_UNIQUE';
-    };
+    throws_ok { $after->update({ id => 'aaa' }) }
+        qr/^Attribute \(id\) does not pass the type constraint/,
+        'attribute error';
+}
 
-    test 'static update' => run {
-        ok(Mock::Language->update({ name => 'perl' }), 'update called as static');
-        my $languages = Mock::Language->find_all;
-        is scalar @$languages, 3, 'amount of rows';
-        is $languages->[0]->name, 'perl', 'all languages named perl';
-        is $languages->[1]->name, 'perl', 'all languages named perl';
-        is $languages->[2]->name, 'perl', 'all languages named perl';
-    };
+{
+    note 'call save not for row';
+    throws_ok { Mock::Language->save }
+        qr/^Save not allowed call as class method/,
+        'not allowed call as class method';
 
-    test 'static update with where' => run {
-        ok(Mock::Language->update({ name => 'python' }, { id => { '<' => 3 } }), 'update called as static with where');
-        my $languages = Mock::Language->find_all;
-        is scalar @$languages, 3, 'amount of rows';
-        is $languages->[0]->name, 'python', 'fitst name';
-        is $languages->[1]->name, 'python', 'second name';
-        is $languages->[2]->name, 'perl', 'third name';
-    };
+    my $model = Mock::Language->new;
+    throws_ok { $model->save }
+        qr/^Save needs row object in your instance/,
+        'not allowed without row';
+}
 
-    cleanup {
-        unlink './t/main.db';
-    };
-};
+{
+    note 'call update as class method';
+    throws_ok { Mock::Language->update }
+        qr/^Update needs where sentense/,
+        'needs where sentense when call as class method';
 
+    throws_ok { Mock::Language->update({ name => 'perl' }) }
+        qr/^Update needs where sentense/,
+        'needs where sentense when call as class method';
+
+    ok(Mock::Language->update({ name => 'perl' }, { id => 1 }), 'update succeeded');
+    is(Mock::Language->find(1)->name, 'perl', 'assert name');
+
+    my $model = Mock::Language->new;
+    throws_ok { $model->update }
+        qr/^Update needs where sentense/,
+        'needs where sentense when call not for row';
+
+    throws_ok { $model->update({ name => 'perl' }) }
+        qr/^Update needs where sentense/,
+        'needs where sentense when call not for row';
+
+    ok($model->update({ name => 'php' }, { id => 1 }), 'update succeeded');
+    is($model->find(1)->name, 'php', 'assert name');
+}

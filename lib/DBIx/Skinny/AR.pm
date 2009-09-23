@@ -111,6 +111,25 @@ sub create {
     return $obj;
 }
 
+sub save {
+    my ($self) = @_;
+    croak 'Save not allowed call as class method' unless ref $self;
+    croak 'Save needs row object in your instance' unless $self->row;
+    $self->update;
+}
+
+sub update {
+    my ($self, $args, $where) = @_;
+    if ( ref $self && $self->row ) {
+        $args = $self->_get_columns unless $args;
+        $self->$_($args->{$_}) for keys %$args;
+        $self->row->update($args);
+    } else {
+        croak 'Update needs where sentense' unless $where;
+        $self->db->update($self->table, $args, $where);
+    }
+}
+
 sub delete {
     my ($self, $args) = @_;
     if ( ref $self ) {
