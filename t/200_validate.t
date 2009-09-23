@@ -1,43 +1,25 @@
-use t::Utils;
+use lib './t';
+use FindBin::libs;
+use Test::More 'no_plan';
+use Test::Exception;
 use Mock::Language;
-use Test::Declare;
+use Mock::Gender;
 
-plan tests => blocks;
+BEGIN { Mock::Basic->setup_test_db }
+END   { unlink './t/main.db' }
 
-describe 'instance object test' => run {
-    init {
-        Mock::Basic->setup_test_db;
-    };
+{
+    my $perl = Mock::Language->find({ name => 'perl' });
+    ok $perl->name('php'), 'modified to unique name';
+    throws_ok { $perl->name('ruby') }
+        qr/^Attribute \(name\) does not pass the type constraint because: ruby is not a unique value./,
+        'failed set not unique name';
+}
 
-    test 'call as class method' => run {
-        is(Mock::Language->validate, undef, 'return undef when call validate as class method without args');
-
-        my $result = Mock::Language->validate({});
-        isa_ok $result, 'FormValidator::Simple::Results';
-        ok $result->has_error, 'validation failed';
-        is_deeply [ $result->error ], [ 'name' ], 'validation error happened in name';
-        is_deeply [ $result->error('name') ], [ 'NOT_BLANK' ], 'name is required';
-
-        $result = Mock::Language->validate({ name => 'php' });
-        isa_ok $result, 'FormValidator::Simple::Results';
-        ok $result->success, 'validation succeeded';
-    };
-
-    test 'call as instance method' => run {
-        my $perl = Mock::Language->find(1);
-        ok $perl->validate->success, 'row object validation succeeded';
-
-        ok my $result = $perl->validate({ name => '' }), 'row object validation with args';
-        isa_ok $result, 'FormValidator::Simple::Results';
-        ok $result->has_error, 'validation failed';
-        is_deeply [ $result->error ], [ 'name' ], 'validation error happened in name';
-        is_deeply [ $result->error('name') ], [ 'NOT_BLANK' ], 'name is required';
-
-        ok $perl->validate({ id => 1 })->success, 'row object validate based on their own columns (args not contains "name")';
-    };
-
-    cleanup {
-        unlink './t/main.db';
-    };
-};
-
+{
+    my $male = Mock::Gender->find({ name => 'male' });
+    ok $male->name('female'), 'modified to allowed name';
+    throws_ok { $male->name('man') }
+        qr/^Attribute \(name\) does not pass the type constraint/,
+        'failed set not allowed name';
+}
