@@ -62,24 +62,24 @@ END   { unlink './t/main.db' }
 {
     note 'call update as class method';
     throws_ok { Mock::Language->update }
-        qr/^Update needs where sentense/,
-        'needs where sentense when call as class method';
+        qr/^Update needs where sentence/,
+        'needs where sentence when call as class method';
 
     throws_ok { Mock::Language->update({ name => 'perl' }) }
-        qr/^Update needs where sentense/,
-        'needs where sentense when call as class method';
+        qr/^Update needs where sentence/,
+        'needs where sentence when call as class method';
 
     ok(Mock::Language->update({ name => 'perl' }, { id => 1 }), 'update succeeded');
     is(Mock::Language->find(1)->name, 'perl', 'assert name');
 
     my $model = Mock::Language->new;
     throws_ok { $model->update }
-        qr/^Update needs where sentense/,
-        'needs where sentense when call not for row';
+        qr/^Update needs where sentence/,
+        'needs where sentence when call not for row';
 
     throws_ok { $model->update({ name => 'perl' }) }
-        qr/^Update needs where sentense/,
-        'needs where sentense when call not for row';
+        qr/^Update needs where sentence/,
+        'needs where sentence when call not for row';
 
     ok($model->update({ name => 'php' }, { id => 1 }), 'update succeeded');
     is($model->find(1)->name, 'php', 'assert name');
