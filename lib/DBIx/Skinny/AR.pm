@@ -140,19 +140,18 @@ sub update {
         $self->$_($args->{$_}) for keys %$args;
         $self->row->update($args);
     } else {
-        croak 'Update needs where sentense' unless $where;
+        croak 'Update needs where sentence' unless $where;
         $self->db->update($self->table, $args, $where);
     }
 }
 
 sub delete {
-    my ($self, $args) = @_;
-    if ( ref $self ) {
-        croak 'Row object is not loaded' unless $self->row;
+    my ($self, $where) = @_;
+    if ( ref $self && $self->row ) {
         $self->row->delete;
     } else {
-        croak 'Delete needs args' unless $args;
-        $self->db->delete($self->table, $args);
+        croak 'Delete needs where sentence' unless $where;
+        $self->db->delete($self->table, $where);
     }
 }
 
