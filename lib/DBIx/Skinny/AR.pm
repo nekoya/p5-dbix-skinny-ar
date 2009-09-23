@@ -20,6 +20,15 @@ has 'row' => (
 no Any::Moose;
 __PACKAGE__->meta->make_immutable;
 
+sub chk_unique {
+    my ($self, $column) = @_;
+    my $where = { $column => $self->$column };
+    my $pk = $self->_pk;
+    $where->{ $pk } = { '!=' => $self->$pk } if $self->$pk;
+    croak "Attribute ($column) does not pass the type constraint because: ".
+        $self->$column . " is not a unique value." if $self->count($where);
+}
+
 sub table {
     my ($self) = @_;
     my $table = ref $self || $self;
