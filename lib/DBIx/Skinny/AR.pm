@@ -68,7 +68,7 @@ sub _get_where {
     return $where if ref $where eq 'HASH';
     return {} unless $where;
     return { $self->_pk => $where } if !ref $where;
-    croak 'invalid where parameter';
+    croak 'Invalid where parameter';
 }
 
 sub find {
@@ -115,10 +115,10 @@ sub create {
 sub delete {
     my ($self, $args) = @_;
     if ( ref $self ) {
-        croak 'row object is not loaded' unless $self->row;
+        croak 'Row object is not loaded' unless $self->row;
         $self->row->delete;
     } else {
-        croak 'delete needs args' unless $args;
+        croak 'Delete needs args' unless $args;
         $self->db->delete($self->table, $args);
     }
 }
