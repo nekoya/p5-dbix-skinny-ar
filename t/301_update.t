@@ -26,6 +26,7 @@ END   { unlink './t/main.db' }
     my $before = Mock::Language->find(1);
     is $before->name, 'php', 'assert name before update';
     ok $before->update({ name => 'perl' }), 'update succeeded';
+    is $before->id, '1', 'assert id after update';
     is $before->name, 'perl', 'assert name after update';
 
     my $after = Mock::Language->find(1);
