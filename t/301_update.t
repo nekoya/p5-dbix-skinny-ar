@@ -41,6 +41,10 @@ END   { unlink './t/main.db' }
     throws_ok { $after->update({ id => 'aaa' }) }
         qr/^Attribute \(id\) does not pass the type constraint/,
         'attribute error';
+
+    throws_ok { $after->update({ name => 'ruby' }) }
+        qr/^Attribute \(name\) does not pass the type constraint/,
+        'failed update with not unique name';
 }
 
 {

@@ -27,6 +27,14 @@ END   { unlink './t/main.db' }
 
 {
     note 'create validation failed';
+    throws_ok { Mock::Language->create({ id => 6, name => 'perl' }) }
+        qr/^Attribute \(name\) does not pass the type constraint/,
+        'failed create with not unique name';
+
+    throws_ok { Mock::Language->create({ name => 'perl' }) }
+        qr/^Attribute \(name\) does not pass the type constraint/,
+        'failed create with not unique name (id auto)';
+
     my $model = Mock::Gender->new;
     throws_ok { $model->create({ name => 'man' }) }
         qr/^Attribute \(name\) does not pass the type constraint/,
