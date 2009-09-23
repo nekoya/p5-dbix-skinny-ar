@@ -34,11 +34,7 @@ sub _pk {
 sub _set_columns {
     my ($self, $row) = @_;
     for my $col ( @{ $self->_columns } ) {
-        $self->$col(
-            (ref $row eq 'HASH')
-            ? $row->{ $col }
-            : $row->$col
-        ) if $self->can($col);
+        $self->$col($row->$col) if $self->can($col);
     }
 }
 
