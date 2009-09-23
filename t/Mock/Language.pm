@@ -2,7 +2,7 @@ package Mock::Language;
 use Any::Moose;
 extends 'Mock::AR';
 
-__PACKAGE__->table('languages');
+use Carp;
 
 has 'id'   => (is => 'rw', isa => 'Undef | Int');
 has 'name' => (is => 'rw', isa => 'Str');

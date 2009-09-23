@@ -3,7 +3,7 @@ use Any::Moose;
 use Any::Moose '::Util::TypeConstraints';
 extends 'Mock::AR';
 
-__PACKAGE__->table('genders');
+sub table { 'genders' }
 
 subtype 'Gender'
     => as Str
