@@ -105,8 +105,7 @@ sub count {
 sub create {
     my ($self, $args) = @_;
     my $class = ref $self || $self;
-    my $obj = $class->new;
-    $obj->_set_columns($args);
+    my $obj = $class->new($args);
     my $row = $self->db->insert($self->table, $args);
     $obj->row($row);
     return $obj;
