@@ -9,6 +9,8 @@ use Lingua::EN::Inflect::Number qw/to_S to_PL/;
 use Any::Moose;
 extends any_moose('::Object'), 'Class::Data::Inheritable';
 
+__PACKAGE__->mk_classdata('db');
+
 has 'row' => (
     is      => 'rw',
     isa     => 'DBIx::Skinny::Row',
@@ -18,8 +20,12 @@ has 'row' => (
 no Any::Moose;
 __PACKAGE__->meta->make_immutable;
 
-__PACKAGE__->mk_classdata('db');
-__PACKAGE__->mk_classdata('table');
+sub table {
+    my ($self) = @_;
+    my $table = ref $self || $self;
+    $table =~ s/^.*:://;
+    to_PL(lc $table);
+}
 
 sub _columns {
     my ($self) = @_;
