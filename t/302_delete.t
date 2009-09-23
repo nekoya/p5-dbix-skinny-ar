@@ -1,28 +1,25 @@
-use t::Utils;
+use lib './t';
+use FindBin::libs;
+use Test::More 'no_plan';
+use Test::Exception;
 use Mock::Language;
-use Test::Declare;
+use Mock::Gender;
 
-plan tests => blocks;
+BEGIN { Mock::Basic->setup_test_db }
+END   { unlink './t/main.db' }
 
-describe 'instance object test' => run {
-    init {
-        Mock::Basic->setup_test_db;
-    };
+my $model = Mock::Language->new;
+{
+    note 'delete row object';
+    my $perl = $model->find(1);
+    ok $perl->delete, 'deleted row object';
+    is $model->find(1), undef, 'record deleted';
+}
 
-    test 'delete by row object' => run {
-        my $perl = Mock::Language->find(1);
-        ok $perl->delete, 'deleted row object';
-        is(Mock::Language->find(1), undef, 'record deleted');
-    };
-
-    test 'delete by class method' => run {
-        throws_ok { Mock::Language->delete } qr/^delete needs where sentence/;
-        ok(Mock::Language->delete({ id => 2 }), 'call delete as class method by hashref');
-        is(Mock::Language->find(2), undef, 'record deleted');
-    };
-
-    cleanup {
-        unlink './t/main.db';
-    };
+{
+    note 'call delete as class method';
+    throws_ok { $model->delete } qr/^Delete needs where sentence/;
+    isa_ok $model->find(2), 'Mock::Language', 'assert target row';
+    ok $model->delete({ id => 2 }), 'call delete as class method by hashref';
+    is $model->find(2), undef, 'record deleted';
 };
-
