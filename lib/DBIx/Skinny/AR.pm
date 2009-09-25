@@ -155,22 +155,32 @@ sub delete {
     }
 }
 
-=head
 sub belongs_to {
     my ($class, $method, $params) = @_;
     croak 'belongs_to needs method name' unless $method;
     $params ||= {};
-    my $target = $class->_prepare_target_class($method, $params->{ class });
-    my $column = $params->{ key } || $method . '_id';
-    {
-        no strict 'refs';
-        *{"$class\::$method"} = sub {
+    my $self_key = $params->{ self_key } || $method . '_id';
+
+    my $target_class = $params->{ target_class }
+        || $class->_get_namespace . ucfirst $method;
+
+    Any::Moose::load_class($target_class)
+        unless Any::Moose::is_class_loaded($target_class);
+
+    my $target_key = $params->{ target_key }
+        || $target_class->_pk;
+    $class->meta->add_attribute(
+        $method,
+        is   => 'ro',
+        isa  => $target_class,
+        lazy => 1,
+        default => sub {
             my $self = shift or return;
-            return unless $self->$column;
-            my $related = $target->find({ id => $self->$column })
+            my $target = $self->row->$self_key or return;
+            my $related = $target_class->find({ $target_key => $target })
                 or croak "related row was not found";
         }
-    }
+    );
 }
 
 sub has_one {
@@ -253,7 +263,6 @@ sub _get_suffix {
     $class =~ s/^.+:://;
     return $class;
 }
-=cut
 
 1;
 __END__
