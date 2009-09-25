@@ -15,4 +15,10 @@ has 'name' => (
     trigger => sub { shift->chk_unique('name') },
 );
 
+__PACKAGE__->belongs_to(
+    'gender' => {
+        self_key => 'gender_name',
+    }
+);
+
 1;

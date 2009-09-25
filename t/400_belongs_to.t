@@ -1,49 +1,46 @@
-use t::Utils;
-use Mock::Member;
-use Test::Declare;
+BEGIN { $ENV{'ANY_MOOSE'} = 'Moose' }
+use lib './t';
+use FindBin::libs;
+use Test::More 'no_plan';
+use Test::Exception;
+use Mock::Book;
+use Mock::Pseudonym;
 
-plan tests => blocks;
+BEGIN { Mock::DB->setup_test_db }
+END   { unlink './t/main.db' }
 
-describe 'instance object test' => run {
-    init {
-        Mock::Basic->setup_test_db;
-    };
+{
+    note "with option";
+    my $book1 = Mock::Book->find({ title => 'book1' });
+    is $book1->author_id, 1, 'assert author_id';
+    ok my $author = $book1->whose, 'get related record';
+    isa_ok $author, 'Mock::Author';
+    is $author->name, 'mike', 'assert author name';
+}
 
-    test 'basic' => run {
-        my $taro = Mock::Member->find({ name => 'taro' });
-        is $taro->gender_id, 1, 'assert gender_id';
-        ok my $gen = $taro->gender, 'get related record';
-        isa_ok $gen, 'Mock::Gender';
-        is $gen->name, 'male', 'assert gender name';
-    };
+{
+    note "auto settings";
+    my $john = Mock::Pseudonym->find({ name => 'John' });
+    isa_ok $john, 'Mock::Pseudonym';
+    throws_ok { $john->author_id }
+        qr/Can't locate object method "author_id"/,
+        'author_id is not implemented at Mock::Pseudonym';
+    ok my $author = $john->author, 'get related record';
+    isa_ok $author, 'Mock::Author';
+    is $author->name, 'mike', 'assert author name';
 
-    test 'args key' => run {
-        my $hanako = Mock::Member->find({ name => 'hanako' });
-        is $hanako->pref_id, 1, 'assert pref_id';
-        ok my $pref = $hanako->prefecture, 'get related record';
-        isa_ok $pref, 'Mock::Prefecture';
-        is $pref->name, 'tokyo', 'assert prefecture name';
-    };
+    note "auto detect custom pk (not 'id')";
+    ok my $gender = $author->gender, 'get related record';
+    isa_ok $gender, 'Mock::Gender';
+    is $gender->name, 'male', 'assert name';
+}
 
-    test 'args key/class' => run {
-        my $taro = Mock::Member->find({ name => 'taro' });
-        is $taro->gender_id, 1, 'assert gender_id';
-        ok my $gen = $taro->gen, 'get related record';
-        isa_ok $gen, 'Mock::Gender';
-        is $gen->name, 'male', 'assert gender name';
-    };
-
-    test 'related row was not found' => run {
-        my $taro = Mock::Member->find({ name => 'taro' });
-        $taro->gender_id('');
-        is $taro->gender, undef, 'return undef when foreign_key is null';
-
-        $taro->gender_id(3);
-        throws_ok { $taro->gender } qr/^related row was not found/, 'threw exception if related row was not found';
-    };
-
-    cleanup {
-        unlink './t/main.db';
-    };
-};
-
+{
+    note "related record not found";
+    my $book1 = Mock::Book->find({ title => 'book1' });
+    ok $book1->author_id(99), 'set invalid author_id (no error arose)';
+    is $book1->author_id, 99, 'assert author_id';
+    throws_ok { $book1->whose }
+        qr/^related row was not found/,
+        'related row was not found';
+}
