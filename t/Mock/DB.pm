@@ -5,6 +5,16 @@ use DBIx::Skinny setup => +{
     password => '',
 };
 
+sub debug {
+    my ($class, $debug) = @_;
+    $class->attribute->{ profile } = $debug;
+}
+
+sub query_log {
+    my $class = shift;
+    $class->profiler->query_log(@_);
+}
+
 sub setup_test_db {
     my $db = shift;
     $db->do(q{
