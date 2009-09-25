@@ -117,6 +117,15 @@ sub count {
     $self->db->count($self->table, $self->_pk, $args);
 }
 
+sub reload {
+    my ($self) = @_;
+    croak 'Reload not allowed call as class method' unless ref $self;
+    my $pk = $self->_pk;
+    my $row = $self->db->single($self->table, { $pk => $self->$pk })
+            or croak 'Record was deleted';
+    $self->row($row);
+}
+
 sub create {
     my ($self, $args) = @_;
     my $class = ref $self || $self;
