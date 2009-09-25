@@ -1,25 +1,25 @@
 use lib './t';
 use FindBin::libs;
-use Test::More 'no_plan';
-use Mock::Language;
+use Test::More tests => 9;
+use Mock::Book;
 use Mock::Gender;
 
-BEGIN { Mock::Basic->setup_test_db }
+BEGIN { Mock::DB->setup_test_db }
 END   { unlink './t/main.db' }
 
 {
     note 'call count as class method';
-    is(Mock::Language->count({ name => 'php' }), 0, 'no amount of count');
-    is(Mock::Language->count, 3, 'count all');
-    is(Mock::Language->count({ name => 'perl' }), 1, 'count by name');
+    is(Mock::Book->count({ title => 'book0' }), 0, 'no amount of count');
+    is(Mock::Book->count, 3, 'count all');
+    is(Mock::Book->count({ title => 'book1' }), 1, 'count by title');
 }
 
 {
     note 'call count as instance method';
-    my $model = Mock::Language->new;
-    is($model->count({ name => 'php' }), 0, 'no amount of count');
+    my $model = Mock::Book->new;
+    is($model->count({ title => 'book0' }), 0, 'no amount of count');
     is($model->count, 3, 'count all');
-    is($model->count({ name => 'perl' }), 1, 'count by name');
+    is($model->count({ title => 'book1' }), 1, 'count by title');
 }
 
 {

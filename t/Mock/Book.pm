@@ -1,4 +1,4 @@
-package Mock::Language;
+package Mock::Book;
 use Any::Moose;
 extends 'Mock::AR';
 
@@ -9,10 +9,15 @@ has 'id' => (
     isa => 'Undef | Int',
 );
 
-has 'name' => (
+has 'author_id' => (
+    is  => 'rw',
+    isa => 'Undef | Int',
+);
+
+has 'title' => (
     is      => 'rw',
     isa     => 'Str',
-    trigger => sub { shift->chk_unique('name') },
+    trigger => sub { shift->chk_unique('title') },
 );
 
 #__PACKAGE__->many_to_many('members' => { glue => 'member_languages' });

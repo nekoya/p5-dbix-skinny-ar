@@ -3,7 +3,7 @@ use Any::Moose;
 use Any::Moose '::Util::TypeConstraints';
 extends 'Mock::AR';
 
-sub table { 'genders' }
+sub table { 'sexes' }
 
 has 'name' => (
     is  => 'rw',

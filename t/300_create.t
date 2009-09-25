@@ -1,39 +1,39 @@
 use lib './t';
 use FindBin::libs;
-use Test::More 'no_plan';
+use Test::More tests => 12;
 use Test::Exception;
-use Mock::Language;
+use Mock::Book;
 use Mock::Gender;
 
-BEGIN { Mock::Basic->setup_test_db }
+BEGIN { Mock::DB->setup_test_db }
 END   { unlink './t/main.db' }
 
 {
     note 'call create as class method';
-    ok my $php = Mock::Language->create({ name => 'php' }), 'create php';
-    isa_ok $php, 'Mock::Language';
-    is $php->id, 4, 'assert id';
-    is $php->name, 'php', 'assert name';
+    ok my $book4 = Mock::Book->create({ title => 'book4' }), 'create book4';
+    isa_ok $book4, 'Mock::Book';
+    is $book4->id, 4, 'assert id';
+    is $book4->title, 'book4', 'assert title';
 }
 
 {
     note 'call create as instance method';
-    my $model = Mock::Language->new;
-    ok my $scala = $model->create({ name => 'scala' }), 'create scala';
-    isa_ok $scala, 'Mock::Language';
-    is $scala->id, 5, 'assert id';
-    is $scala->name, 'scala', 'assert name';
+    my $model = Mock::Book->new;
+    ok my $book5 = Mock::Book->create({ title => 'book5' }), 'create book5';
+    isa_ok $book5, 'Mock::Book';
+    is $book5->id, 5, 'assert id';
+    is $book5->title, 'book5', 'assert title';
 }
 
 {
     note 'create validation failed';
-    throws_ok { Mock::Language->create({ id => 6, name => 'perl' }) }
-        qr/^Attribute \(name\) does not pass the type constraint/,
-        'failed create with not unique name';
+    throws_ok { Mock::Book->create({ id => 6, title => 'book1' }) }
+        qr/^Attribute \(title\) does not pass the type constraint/,
+        'failed create with not unique title';
 
-    throws_ok { Mock::Language->create({ name => 'perl' }) }
-        qr/^Attribute \(name\) does not pass the type constraint/,
-        'failed create with not unique name (id auto)';
+    throws_ok { Mock::Book->create({ title => 'book2' }) }
+        qr/^Attribute \(title\) does not pass the type constraint/,
+        'failed create with not unique title (id auto)';
 
     my $model = Mock::Gender->new;
     throws_ok { $model->create({ name => 'man' }) }

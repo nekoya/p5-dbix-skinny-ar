@@ -1,9 +1,9 @@
 use lib './t';
 use FindBin::libs;
 use Test::More tests => 1;
-use Mock::Language;
+use Mock::Book;
 
 {
-    my $model = Mock::Language->new;
-    isa_ok $model, 'Mock::Language';
+    my $model = Mock::Book->new;
+    isa_ok $model, 'Mock::Book';
 }

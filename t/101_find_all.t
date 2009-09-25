@@ -1,54 +1,55 @@
 use lib './t';
 use FindBin::libs;
-use Test::More 'no_plan';
-use Mock::Language;
+use Test::More tests => 42;
+use Mock::Book;
 use Mock::Gender;
 
-BEGIN { Mock::Basic->setup_test_db }
+BEGIN { Mock::DB->setup_test_db }
 END   { unlink './t/main.db' }
 
 {
     note 'call find_all as class method';
-    is_deeply(Mock::Language->find_all({ name => 'php' }), [], 'return empty arrayref when any record were not exists');
+    is_deeply(Mock::Book->find_all({ title => 'book0' }), [], 'return empty arrayref when any record were not exists');
 
-    ok my $languages = Mock::Language->find_all, 'find all';
-    is scalar @$languages, 3, 'amount of rows';
-    is $languages->[0]->name, 'perl', 'first  language name';
-    is $languages->[1]->name, 'python', 'second language name';
-    is $languages->[2]->name, 'ruby', 'third language name';
+    ok my $books= Mock::Book->find_all, 'find all';
+    is scalar @$books, 3, 'amount of rows';
+    is $books->[0]->title, 'book1', 'first  book title';
+    is $books->[1]->title, 'book2', 'second book title';
+    is $books->[2]->title, 'book3', 'third book title';
 
-    ok $languages = Mock::Language->find_all({ name => 'python' }), 'find_all by name';
-    is scalar @$languages, 1, 'amount of rows';
-    is $languages->[0]->name, 'python', 'first  language name';
+    ok $books = Mock::Book->find_all({ title => 'book2' }), 'find_all by title';
+    is scalar @$books, 1, 'amount of rows';
+    is $books->[0]->title, 'book2', 'first  book title';
 
-    ok my $languages = Mock::Language->find_all(undef, { order_by => { id => 'desc' } }), 'find all order by desc';
-    is scalar @$languages, 3, 'amount of rows';
-    is $languages->[0]->name, 'ruby', 'first language name';
-    is $languages->[1]->name, 'python', 'second language name';
-    is $languages->[2]->name, 'perl', 'third  language name';
+    ok my $books = Mock::Book->find_all(undef, { order_by => { id => 'desc' } }), 'find all order by desc';
+    is scalar @$books, 3, 'amount of rows';
+    is $books->[0]->title, 'book3', 'first book title';
+    is $books->[1]->title, 'book2', 'second book title';
+    is $books->[2]->title, 'book1', 'third  book title';
 }
 
 {
     note 'call find_all as instance method';
-    my $model = Mock::Language->new;
+    ok my $model = Mock::Book->new, 'create instance';
+    isa_ok $model, 'Mock::Book';
 
-    is_deeply($model->find_all({ name => 'php' }), [], 'return empty arrayref when any record were not exists');
+    is_deeply($model->find_all({ title => 'book0' }), [], 'return empty arrayref when any record were not exists');
 
-    ok my $languages = $model->find_all, 'find all';
-    is scalar @$languages, 3, 'amount of rows';
-    is $languages->[0]->name, 'perl', 'first  language name';
-    is $languages->[1]->name, 'python', 'second language name';
-    is $languages->[2]->name, 'ruby', 'third language name';
+    ok my $books= $model->find_all, 'find all';
+    is scalar @$books, 3, 'amount of rows';
+    is $books->[0]->title, 'book1', 'first  book title';
+    is $books->[1]->title, 'book2', 'second book title';
+    is $books->[2]->title, 'book3', 'third book title';
 
-    ok $languages = $model->find_all({ name => 'python' }), 'find_all by name';
-    is scalar @$languages, 1, 'amount of rows';
-    is $languages->[0]->name, 'python', 'first  language name';
+    ok $books = $model->find_all({ title => 'book2' }), 'find_all by title';
+    is scalar @$books, 1, 'amount of rows';
+    is $books->[0]->title, 'book2', 'first  book title';
 
-    ok my $languages = $model->find_all(undef, { order_by => { id => 'desc' } }), 'find all order by desc';
-    is scalar @$languages, 3, 'amount of rows';
-    is $languages->[0]->name, 'ruby', 'first language name';
-    is $languages->[1]->name, 'python', 'second language name';
-    is $languages->[2]->name, 'perl', 'third  language name';
+    ok my $books = $model->find_all(undef, { order_by => { id => 'desc' } }), 'find all order by desc';
+    is scalar @$books, 3, 'amount of rows';
+    is $books->[0]->title, 'book3', 'first book title';
+    is $books->[1]->title, 'book2', 'second book title';
+    is $books->[2]->title, 'book1', 'third  book title';
 }
 
 {
