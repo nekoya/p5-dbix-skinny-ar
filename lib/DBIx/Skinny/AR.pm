@@ -186,7 +186,7 @@ sub belongs_to {
                 ? $self->$self_key
                 : $self->row->$self_key or return;
             my $related = $target_class->find({ $target_key => $target })
-                or croak "related row was not found";
+                or croak "Related row was not found";
         }
     );
     $class->_add_clearer($self_key, $clearer);
