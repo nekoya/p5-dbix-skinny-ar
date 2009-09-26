@@ -167,13 +167,14 @@ sub delete {
 sub belongs_to {
     my ($class, $method, $params) = @_;
     croak 'belongs_to needs method name' unless $method;
-    $params ||= {};
+
     my $self_key = $params->{ self_key } || $method . '_id';
     my $target_class = $params->{ target_class }
         || $class->_get_namespace . ucfirst $method;
     $class->_ensure_load_class($target_class);
     my $target_key = $params->{ target_key } || $target_class->_pk;
     my $clearer = 'clear_' . $method;
+
     $class->meta->add_attribute(
         $method,
         is      => 'ro',
@@ -184,7 +185,7 @@ sub belongs_to {
             my $self = shift or return;
             my $target = $self->can($self_key)
                 ? $self->$self_key
-                : $self->row->$self_key or return;
+                : $self->row->$self_key or croak "Couldn't fetch $self_key";
             my $related = $target_class->find({ $target_key => $target })
                 or croak "Related row was not found";
         }
@@ -224,7 +225,7 @@ sub has_one {
             my $self = shift or return;
             my $ident = $self->can($self_key)
                 ? $self->$self_key
-                : $self->row->$self_key or return;
+                : $self->row->$self_key or croak "Couldn't fetch $self_key";
             $target_class->find({ $target_key => $ident });
         }
     );
