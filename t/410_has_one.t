@@ -1,35 +1,30 @@
-use t::Utils;
-use Mock::Member;
-use Test::Declare;
+#BEGIN { $ENV{'ANY_MOOSE'} = 'Moose' }
+use lib './t';
+use FindBin::libs;
+use Test::More 'no_plan';
+use Test::Exception;
+use Data::Dumper;
+use Perl6::Say;
 
-plan tests => blocks;
+use Mock::Author;
 
-describe 'instance object test' => run {
-    init {
-        Mock::Basic->setup_test_db;
-    };
+BEGIN { Mock::DB->setup_test_db }
+END   { unlink './t/main.db' }
 
-    test 'no record' => run {
-        my $taro = Mock::Member->find({ name => 'taro' });
-        is $taro->namecard, undef, 'return undef if related record was not found';
-    };
+package Mock::Author;
 
-    test 'exists' => run {
-        my $hanako = Mock::Member->find({ name => 'hanako' });
-        ok my $card = $hanako->namecard, 'get related namecard';
-        isa_ok $card, 'Mock::Namecard';
-        is $card->member_id, $hanako->id, 'assert foreign_key';
-    };
+__PACKAGE__->has_one('pseudonym');
 
-    test 'custom key/class' => run {
-        my $hanako = Mock::Member->find({ name => 'hanako' });
-        ok my $card = $hanako->nc, 'get related namecard';
-        isa_ok $card, 'Mock::Namecard';
-        is $card->member_id, $hanako->id, 'assert foreign_key';
-    };
+package main;
 
-    cleanup {
-        unlink './t/main.db';
-    };
-};
+{
+    my $lisa = Mock::Author->find({ name => 'Lisa' });
+    ok my $pseudo = $lisa->pseudonym, 'get related object';
+    isa_ok $pseudo, 'Mock::Pseudonym';
+    is $pseudo->name, 'Miyako', 'assert pseudonym name';
+}
 
+{
+    my $mike = Mock::Author->find({ name => 'Mike' });
+    is $mike->pseudonym, undef, 'related object not found';
+}

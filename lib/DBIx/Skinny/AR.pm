@@ -207,14 +207,27 @@ sub _add_clearer {
 sub has_one {
     my ($class, $method, $params) = @_;
     croak 'has_one needs method name' unless $method;
-    my ($target, $column) = $class->_prepare_related_params($method, $params);
-    {
-        no strict 'refs';
-        *{"$class\::$method"} = sub {
+
+    my $self_key = $params->{ self_key } || $class->_pk;
+    my $target_class = $params->{ target_class }
+        || $class->_get_namespace . ucfirst $method;
+    $class->_ensure_load_class($target_class);
+    my $target_key = $params->{ target_key }
+        || lc $class->_get_suffix . '_id';
+
+    $class->meta->add_attribute(
+        $method,
+        is      => 'ro',
+        isa     => $target_class,
+        lazy    => 1,
+        default => sub {
             my $self = shift or return;
-            return $target->find({ $column => $self->id });
+            my $ident = $self->can($self_key)
+                ? $self->$self_key
+                : $self->row->$self_key or return;
+            $target_class->find({ $target_key => $ident });
         }
-    }
+    );
 }
 
 sub has_many {
