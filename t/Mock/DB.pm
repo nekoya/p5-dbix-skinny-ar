@@ -84,13 +84,12 @@ sub setup_test_db {
     ]);
 
     $db->bulk_insert('authors', [
-        { id => 1, gender_name => 'male', name => 'mike' },
-        { id => 2, gender_name => 'female', name => 'lisa' },
+        { id => 1, gender_name => 'male', name => 'Mike' },
+        { id => 2, gender_name => 'female', name => 'Lisa' },
     ]);
 
     $db->bulk_insert('pseudonyms', [
-        { id => 1, author_id => 1, name => 'John' },
-        { id => 2, author_id => 2, name => 'Miyako' },
+        { id => 1, author_id => 2, name => 'Miyako' },
     ]);
 
     $db->bulk_insert('sexes', [

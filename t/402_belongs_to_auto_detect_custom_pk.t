@@ -22,7 +22,7 @@ __PACKAGE__->belongs_to(
 package main;
 
 {
-    my $author = Mock::Author->find({ name => 'mike' });
+    my $author = Mock::Author->find({ name => 'Mike' });
     isnt $author->can('gender_name'), 1, 'author cannot call gender_name';
     isnt $author->can('gender'), 1, 'author cannot call gender';
     my $gender = $author->gender, 'get related object';
