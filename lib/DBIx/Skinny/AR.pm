@@ -169,27 +169,39 @@ sub belongs_to {
     croak 'belongs_to needs method name' unless $method;
     $params ||= {};
     my $self_key = $params->{ self_key } || $method . '_id';
-
     my $target_class = $params->{ target_class }
         || $class->_get_namespace . ucfirst $method;
-
-    Any::Moose::load_class($target_class)
-        unless Any::Moose::is_class_loaded($target_class);
-
-    my $target_key = $params->{ target_key }
-        || $target_class->_pk;
+    $class->_ensure_load_class($target_class);
+    my $target_key = $params->{ target_key } || $target_class->_pk;
+    my $clearer = 'clear_' . $method;
     $class->meta->add_attribute(
         $method,
-        is   => 'ro',
-        isa  => $target_class,
-        lazy => 1,
+        is      => 'ro',
+        isa     => $target_class,
+        clearer => $clearer,
+        lazy    => 1,
         default => sub {
             my $self = shift or return;
-            my $target = $self->row->$self_key or return;
+            my $target = $self->can($self_key)
+                ? $self->$self_key
+                : $self->row->$self_key or return;
             my $related = $target_class->find({ $target_key => $target })
                 or croak "related row was not found";
         }
     );
+    $class->_add_clearer($self_key, $clearer);
+}
+
+sub _add_clearer {
+    my ($self, $key, $clearer) = @_;
+    my $attr = $self->meta->get_attribute($key);
+    if ( $attr && $self->can($key) ) {
+        croak "$key already has trigger" if $attr->has_trigger;
+        $self->meta->add_attribute(
+            '+' . $key,
+            trigger => sub { shift->$clearer },
+        );
+    }
 }
 
 sub has_one {
@@ -271,6 +283,12 @@ sub _get_suffix {
     my $class = shift;
     $class =~ s/^.+:://;
     return $class;
+}
+
+sub _ensure_load_class {
+    my ($self, $class) = @_;
+    Any::Moose::load_class($class)
+        unless Any::Moose::is_class_loaded($class);
 }
 
 1;
