@@ -10,6 +10,4 @@ has 'name' => (
     isa => enum([ qw/male female/ ]),
 );
 
-#__PACKAGE__->has_many('members');
-
 1;

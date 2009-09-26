@@ -15,6 +15,4 @@ has 'name' => (
     trigger => sub { shift->chk_unique('name') },
 );
 
-__PACKAGE__->belongs_to('author');
-
 1;
