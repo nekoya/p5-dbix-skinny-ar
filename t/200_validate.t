@@ -1,12 +1,14 @@
 use lib './t';
 use FindBin::libs;
-use Mock::Basic;
+use Test::More tests => 23;
+use Test::Exception;
+use Mock::DB;
 
-BEGIN { Mock::Basic->setup_db }
+BEGIN { Mock::DB->setup_test_db }
 END   { unlink './t/main.db'  }
 
-use Test::More tests => 4;
-use Test::Exception;
+use Mock::Book;
+use Mock::Gender;
 {
     note 'unique constraint';
     my $book1 = Mock::Book->find({ title => 'book1' });
