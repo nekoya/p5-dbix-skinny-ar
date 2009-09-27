@@ -112,8 +112,12 @@ sub find_all {
 }
 
 sub count {
-    my ($self, $args) = @_;
-    $self->db->count($self->table, $self->_pk, $args);
+    my ($self, $where) = @_;
+    $self->db->count(
+        $self->table,
+        $self->_pk,
+        $self->_get_where($where)
+    );
 }
 
 sub reload {

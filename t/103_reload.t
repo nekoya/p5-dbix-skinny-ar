@@ -1,17 +1,18 @@
 use lib './t';
 use FindBin::libs;
-use Mock::Basic;
+use Test::More tests => 34;
+use Test::Exception;
+use Mock::DB;
 
-BEGIN { Mock::Basic->setup_db }
+BEGIN { Mock::DB->setup_test_db }
 END   { unlink './t/main.db'  }
 
-use Test::More tests => 13;
-use Test::Exception;
+use Mock::Book;
 {
     note "successful reload";
     my $book = Mock::Book->find(1);
     is $book->title, 'book1', 'assert title';
-    ok(Mock::Basic->update('books', { title => 'book0' }, { id => 1 }), 'update DB');
+    ok(Mock::DB->update('books', { title => 'book0' }, { id => 1 }), 'update DB');
     is $book->title, 'book1', 'assert title (not modified)';
     ok $book->reload, 'reload';
     is $book->title, 'book0', 'assert title (updated)';
@@ -21,7 +22,7 @@ use Test::Exception;
     note "reload row, but it was deleted";
     my $book = Mock::Book->find(1);
     isa_ok $book, 'Mock::Book';
-    ok(Mock::Basic->delete('books', { id => 1 }), 'delete from DB');
+    ok(Mock::DB->delete('books', { id => 1 }), 'delete from DB');
     is $book->id, 1, 'assert id (still alived)';
     throws_ok { $book->reload } qr/^Record was deleted/, 'caught exception';
 }

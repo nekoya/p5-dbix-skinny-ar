@@ -1,23 +1,27 @@
 use lib './t';
 use FindBin::libs;
-use Mock::Basic;
+use Test::More tests => 5;
+use Test::Exception;
+use Mock::DB;
 
-BEGIN { Mock::Basic->setup_db }
+BEGIN { Mock::DB->setup_test_db }
 END   { unlink './t/main.db'  }
 
-use Test::More tests => 6;
-
+use Mock::Book;
+use Mock::Gender;
 {
-    note 'call count as class method';
-    is(Mock::Book->count({ title => 'book0' }), 0, 'no amount of count');
     is(Mock::Book->count, 3, 'count all');
-    is(Mock::Book->count({ title => 'book1' }), 1, 'count by title');
 }
-
 {
-    note 'call count as instance method, and custom PK';
-    my $model = Mock::Author->new;
-    is($model->count({ name => 'Kate' }), 0, 'no amount of count');
-    is($model->count, 3, 'count all');
-    is($model->count({ name => 'John' }), 1, 'count by name');
+    is(Mock::Book->count(1), 1, 'count by PK');
+}
+{
+    is(Mock::Book->count({ title => 'book1' }), 1, 'count by hashref');
+}
+{
+    is(Mock::Book->count({ title => 'book0' }), 0, 'no amount of count');
+}
+{
+    my $model = Mock::Book->new;
+    is $model->count, 3, 'call count as instance method';
 }

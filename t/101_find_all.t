@@ -1,61 +1,67 @@
 use lib './t';
 use FindBin::libs;
-use Mock::Basic;
+use Test::More tests => 34;
+use Test::Exception;
+use Mock::DB;
 
-BEGIN { Mock::Basic->setup_db }
+BEGIN { Mock::DB->setup_test_db }
 END   { unlink './t/main.db'  }
 
-use Test::More tests => 34;
-
+use Mock::Book;
+use Mock::Gender;
 {
-    note 'call find_all as class method';
-    is_deeply(Mock::Book->find_all({ title => 'book0' }), [], 'return empty arrayref when any record were not exists');
-
-    ok my $books= Mock::Book->find_all, 'find all';
+    note "find_all";
+    ok my $books = Mock::Book->find_all, 'find_all';
     is scalar @$books, 3, 'amount of rows';
-    is $books->[0]->title, 'book1', 'first  book title';
-    is $books->[1]->title, 'book2', 'second book title';
-    is $books->[2]->title, 'book3', 'third  book title';
-
-    ok $books = Mock::Book->find_all({ title => 'book2' }), 'find_all by title';
-    is scalar @$books, 1, 'amount of rows';
-    is $books->[0]->title, 'book2', 'first  book title';
-
-    ok $books = Mock::Book->find_all(undef, { order_by => { id => 'desc' } }), 'find_all with options';
-    is scalar @$books, 3, 'amount of rows';
-    is $books->[0]->title, 'book3', 'first  book title';
-    is $books->[1]->title, 'book2', 'second book title';
-    is $books->[2]->title, 'book1', 'third  book title';
+    isa_ok $books->[0], 'Mock::Book';
+    isa_ok $books->[1], 'Mock::Book';
+    isa_ok $books->[2], 'Mock::Book';
+    is $books->[0]->title, 'book1', 'first  book name';
+    is $books->[1]->title, 'book2', 'second book name';
+    is $books->[2]->title, 'book3', 'third  book name';
 }
-
 {
-    note 'call find_all as instance method';
-    ok my $model = Mock::Book->new, 'create instance';
-    isa_ok $model, 'Mock::Book';
-
-    is_deeply($model->find_all({ title => 'book0' }), [], 'return empty arrayref when any record were not exists');
-
-    ok my $books= $model->find_all, 'find all';
-    is scalar @$books, 3, 'amount of rows';
-    is $books->[0]->title, 'book1', 'first  book title';
-    is $books->[1]->title, 'book2', 'second book title';
-    is $books->[2]->title, 'book3', 'third  book title';
-
-    ok $books = $model->find_all({ title => 'book2' }), 'find_all by title';
+    note "find_all by pk";
+    ok my $books = Mock::Book->find_all(2), 'find_all by pk';
     is scalar @$books, 1, 'amount of rows';
-    is $books->[0]->title, 'book2', 'first  book title';
-
-    ok $books = $model->find_all(undef, { order_by => { id => 'desc' } }), 'find_all with options';
-    is scalar @$books, 3, 'amount of rows';
-    is $books->[0]->title, 'book3', 'first  book title';
-    is $books->[1]->title, 'book2', 'second book title';
-    is $books->[2]->title, 'book1', 'third  book title';
+    isa_ok $books->[0], 'Mock::Book';
+    is $books->[0]->title, 'book2', 'assert name';
 }
-
 {
-    note 'find_all by custom pk';
-    ok my $authors = Mock::Author->find_all('Lisa'), 'find_all by custom pk';
-    is scalar @$authors, 1, 'amount of rows';
-    isa_ok $authors->[0], 'Mock::Author';
-    is $authors->[0]->name, 'Lisa', 'assert name';
+    note "find_all by hashref";
+    ok my $books = Mock::Book->find_all({ title => 'book3' }), 'find_all by hashref';
+    is scalar @$books, 1, 'amount of rows';
+    isa_ok $books->[0], 'Mock::Book';
+    is $books->[0]->title, 'book3', 'assert name';
+}
+{
+    note "no record";
+    ok my $books = Mock::Book->find_all({ title => 'none' }), 'find_all';
+    is_deeply $books, [], 'return empty arrayref';
+}
+{
+    note "find_all with additional options";
+    ok my $books = Mock::Book->find_all(undef, { order_by => { id => 'desc' } }), 'find_all';
+    is scalar @$books, 3, 'amount of rows';
+    isa_ok $books->[0], 'Mock::Book';
+    isa_ok $books->[1], 'Mock::Book';
+    isa_ok $books->[2], 'Mock::Book';
+    is $books->[0]->title, 'book3', 'first  book name';
+    is $books->[1]->title, 'book2', 'second book name';
+    is $books->[2]->title, 'book1', 'third  book name';
+}
+{
+    note "call find as instance method";
+    my $model = Mock::Book->new;
+    ok my $books = $model->find_all({ title => 'book3' }), 'find_all by hashref';
+    is scalar @$books, 1, 'amount of rows';
+    isa_ok $books->[0], 'Mock::Book';
+    is $books->[0]->title, 'book3', 'assert name';
+}
+{
+    note "find_all from custom table name, pk is not id";
+    ok my $genders = Mock::Gender->find_all('female'), 'find_all';
+    is scalar @$genders, 1, 'amount of rows';
+    isa_ok $genders->[0], 'Mock::Gender';
+    is $genders->[0]->name, 'female', 'assert name';
 }

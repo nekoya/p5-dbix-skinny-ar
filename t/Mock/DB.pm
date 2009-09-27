@@ -43,6 +43,7 @@ sub setup_test_db {
 
     $db->do(q{
         CREATE TABLE sexes (
+            id     INTEGER PRIMARY KEY AUTOINCREMENT,
             name   TEXT
         )
     });
@@ -77,6 +78,21 @@ sub setup_test_db {
         )
     });
 
+    $db->do(q{
+        CREATE TABLE prefectures (
+            code  INTEGER PRIMARY KEY AUTOINCREMENT,
+            name  INTEGER
+        )
+    });
+
+    $db->do(q{
+        CREATE TABLE cities (
+            id      INTEGER PRIMARY KEY AUTOINCREMENT,
+            p_code  INTEGER,
+            name    INTEGER
+        )
+    });
+
     $db->bulk_insert('books', [
         { id => 1, author_id => 1, title => 'book1' },
         { id => 2, author_id => 2, title => 'book2' },
@@ -94,8 +110,8 @@ sub setup_test_db {
     ]);
 
     $db->bulk_insert('sexes', [
-        { name => 'male'   },
-        { name => 'female' },
+        { id => 1, name => 'male'   },
+        { id => 2, name => 'female' },
     ]);
 
     $db->bulk_insert('categories', [
@@ -120,6 +136,17 @@ sub setup_test_db {
         { id => 1, book_id => 1, library_id => 1 },
         { id => 2, book_id => 2, library_id => 2 },
     ]);
+
+    $db->bulk_insert('prefectures', [
+        { code => 1, name => 'Tokyo' },
+        { code => 2, name => 'Kyoto' },
+    ]);
+
+    $db->bulk_insert('cities', [
+        { id => 1, p_code => 1, name => 'Mitaka' },
+        { id => 2, p_code => 1, name => 'Chofu' },
+        { id => 3, p_code => 3, name => 'Sapporo' },
+    ]);
 }
 
 package Mock::DB::Schema;
@@ -142,7 +169,7 @@ install_table pseudonyms => schema {
 
 install_table sexes => schema {
     pk 'name';
-    columns qw/name/;
+    columns qw/id name/;
 };
 
 install_table categories => schema {
@@ -163,6 +190,16 @@ install_table libraries => schema {
 install_table books_libraries => schema {
     pk 'id';
     columns qw/id book_id library_id/;
+};
+
+install_table prefectures => schema {
+    pk 'code';
+    columns qw/code name/;
+};
+
+install_table cities => schema {
+    pk 'id';
+    columns qw/id p_code name/;
 };
 
 1;
