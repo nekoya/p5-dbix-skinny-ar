@@ -3,7 +3,6 @@ package DBIx::Skinny::AR;
 our $VERSION = '0.0.1';
 
 use Carp;
-use UNIVERSAL::require;
 use Lingua::EN::Inflect::Number qw/to_S to_PL/;
 
 use Any::Moose;
@@ -64,7 +63,7 @@ sub _get_columns {
 
 sub setup {
     my ($class, $db_class) = @_;
-    $db_class->require;
+    $class->_ensure_load_class($db_class);
     __PACKAGE__->db($db_class);
 }
 
