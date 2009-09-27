@@ -1,33 +1,74 @@
 #BEGIN { $ENV{'ANY_MOOSE'} = 'Moose' }
 use lib './t';
 use FindBin::libs;
-use Test::More 'no_plan';
-use Test::Exception;
-use Data::Dumper;
-use Perl6::Say;
 
-use Mock::Author;
+package Mock::Basic;
+use DBIx::Skinny setup => { dsn => 'dbi:SQLite:', username => '', password => '' };
 
-BEGIN { Mock::DB->setup_test_db }
-END   { unlink './t/main.db' }
+sub setup_db {
+    my $db = shift;
+    $db->do(q{
+        CREATE TABLE books (
+            id           INTEGER PRIMARY KEY AUTOINCREMENT,
+            author_name  TEXT,
+            title        TEXT UNIQUE
+        )
+    });
+    $db->do(q{
+        CREATE TABLE authors (
+            id    INTEGER PRIMARY KEY AUTOINCREMENT,
+            name  TEXT
+        )
+    });
+    $db->bulk_insert('books', [
+        { id => 1, author_name => 'Mike', title => 'book1' },
+    ]);
+    $db->bulk_insert('authors', [
+        { id => 1, name => 'Mike' },
+    ]);
+}
+
+package Mock::Basic::Schema;
+use DBIx::Skinny::Schema;
+install_table books   => schema { pk 'id'; columns qw/id author_name title/ };
+install_table authors => schema { pk 'id'; columns qw/id name/ };
+
+package Mock::AR;
+use Any::Moose;
+extends 'DBIx::Skinny::AR';
+__PACKAGE__->setup('Mock::Basic');
 
 package Mock::Author;
+use Any::Moose;
+extends 'Mock::AR';
+has 'id'   => ( is => 'rw', isa => 'Undef | Int' );
+has 'name' => ( is => 'rw', isa => 'Str' );
+
+package Mock::Book;
+use Any::Moose;
+extends 'Mock::AR';
+has 'id'          => ( is => 'rw', isa => 'Undef | Int' );
+has 'author_name' => ( is => 'rw', isa => 'Str' );
+has 'title'       => ( is => 'rw', isa => 'Str' );
 
 __PACKAGE__->belongs_to(
-    'sex' => {
-        self_key     => 'gender_name',
-        target_class => 'Mock::Gender',
+    'whose' => {
+        self_key     => 'author_name',
+        target_class => 'Mock::Author',
         target_key   => 'name',
     }
 );
 
 package main;
 
+Mock::Basic->setup_db;
+END   { unlink './t/main.db'  }
+
+use Test::More tests => 3;
+use Test::Exception;
 {
-    my $author = Mock::Author->find({ name => 'Mike' });
-    isnt $author->can('gender_name'), 1, 'author cannot call gender_name';
-    isnt $author->can('gender'), 1, 'author cannot call gender';
-    my $gender = $author->sex, 'get related object';
-    isa_ok $gender, 'Mock::Gender';
-    is $gender->name, 'male', 'assert gender name';
+    my $book = Mock::Book->find(1);
+    ok my $author = $book->whose, 'get related object';
+    isa_ok $author, 'Mock::Author';
+    is $author->name, 'Mike', 'assert author name';
 }
