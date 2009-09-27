@@ -1,11 +1,11 @@
 use lib './t';
 use FindBin::libs;
-use Test::More tests => 31;
-use Mock::Book;
-use Mock::Gender;
+use Mock::Basic;
 
-BEGIN { Mock::DB->setup_test_db }
-END   { unlink './t/main.db' }
+BEGIN { Mock::Basic->setup_db }
+END   { unlink './t/main.db'  }
+
+use Test::More tests => 31;
 
 {
     note 'call find as class method';
@@ -25,7 +25,7 @@ END   { unlink './t/main.db' }
 
     ok my $last = Mock::Book->find(undef, { order_by => { id => 'desc' } }), 'find last row';
     isa_ok $last, 'Mock::Book';
-    is $last->title, 'book3', 'assert title';
+    is $last->title, 'book4', 'assert title';
 }
 
 {
@@ -49,13 +49,12 @@ END   { unlink './t/main.db' }
 
     ok my $last = $model->find(undef, { order_by => { id => 'desc' } }), 'find last row';
     isa_ok $last, 'Mock::Book';
-    is $last->title, 'book3', 'assert title';
+    is $last->title, 'book4', 'assert title';
 }
 
 {
-    note 'call find as instance method (custom pk)';
-    my $model = Mock::Gender->new;
-    ok my $male = $model->find('male'), 'find by pk';
-    isa_ok $male, 'Mock::Gender';
-    is $male->name, 'male', 'assert name';
+    note 'find by custom table name and custom(not id) pk';
+    ok my $john = Mock::Author->find('John'), 'find by pk (name)';
+    isa_ok $john, 'Mock::Author';
+    is $john->name, 'John', 'assert name';
 }

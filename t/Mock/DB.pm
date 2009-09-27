@@ -86,6 +86,7 @@ sub setup_test_db {
     $db->bulk_insert('authors', [
         { id => 1, gender_name => 'male', name => 'Mike' },
         { id => 2, gender_name => 'female', name => 'Lisa' },
+        { id => 3, gender_name => 'male', name => 'John' },
     ]);
 
     $db->bulk_insert('pseudonyms', [

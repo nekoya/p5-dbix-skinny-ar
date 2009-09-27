@@ -1,24 +1,14 @@
 use lib './t';
 use FindBin::libs;
+use Mock::Basic;
+
+BEGIN { Mock::Basic->setup_db }
+END   { unlink './t/main.db'  }
+
 use Test::More tests => 12;
 use Test::Exception;
-use Mock::Book;
-use Mock::Gender;
-
-BEGIN { Mock::DB->setup_test_db }
-END   { unlink './t/main.db' }
-
 {
     note 'call create as class method';
-    ok my $book4 = Mock::Book->create({ title => 'book4' }), 'create book4';
-    isa_ok $book4, 'Mock::Book';
-    is $book4->id, 4, 'assert id';
-    is $book4->title, 'book4', 'assert title';
-}
-
-{
-    note 'call create as instance method';
-    my $model = Mock::Book->new;
     ok my $book5 = Mock::Book->create({ title => 'book5' }), 'create book5';
     isa_ok $book5, 'Mock::Book';
     is $book5->id, 5, 'assert id';
@@ -26,8 +16,17 @@ END   { unlink './t/main.db' }
 }
 
 {
+    note 'call create as instance method';
+    my $model = Mock::Book->new;
+    ok my $book6 = Mock::Book->create({ title => 'book6' }), 'create book6';
+    isa_ok $book6, 'Mock::Book';
+    is $book6->id, 6, 'assert id';
+    is $book6->title, 'book6', 'assert title';
+}
+
+{
     note 'create validation failed';
-    throws_ok { Mock::Book->create({ id => 6, title => 'book1' }) }
+    throws_ok { Mock::Book->create({ id => 7, title => 'book1' }) }
         qr/^Attribute \(title\) does not pass the type constraint/,
         'failed create with not unique title';
 

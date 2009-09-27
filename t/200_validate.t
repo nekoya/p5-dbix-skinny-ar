@@ -1,22 +1,23 @@
 use lib './t';
 use FindBin::libs;
+use Mock::Basic;
+
+BEGIN { Mock::Basic->setup_db }
+END   { unlink './t/main.db'  }
+
 use Test::More tests => 4;
 use Test::Exception;
-use Mock::Book;
-use Mock::Gender;
-
-BEGIN { Mock::DB->setup_test_db }
-END   { unlink './t/main.db' }
-
 {
+    note 'unique constraint';
     my $book1 = Mock::Book->find({ title => 'book1' });
-    ok $book1->title('book4'), 'modified to unique title';
+    ok $book1->title('book0'), 'modified to unique title';
     throws_ok { $book1->title('book2') }
         qr/^Attribute \(title\) does not pass the type constraint because: book2 is not a unique value./,
         'failed set not unique title';
 }
 
 {
+    note 'enum constraint (Moose function)';
     my $male = Mock::Gender->find({ name => 'male' });
     ok $male->name('female'), 'modified to allowed name';
     throws_ok { $male->name('man') }

@@ -1,30 +1,29 @@
 use lib './t';
 use FindBin::libs;
+use Mock::Basic;
+
+BEGIN { Mock::Basic->setup_db }
+END   { unlink './t/main.db'  }
+
 use Test::More tests => 26;
 use Test::Exception;
-use Mock::Book;
-use Mock::Gender;
-
-BEGIN { Mock::DB->setup_test_db }
-END   { unlink './t/main.db' }
-
 {
     note 'row object update by save method';
     my $before = Mock::Book->find(1);
     is $before->title, 'book1', 'assert title before save';
-    $before->title('book4');
+    $before->title('book5');
     ok $before->save, 'update succeeded';
 
     my $after = Mock::Book->find(1);
     isa_ok $after, 'Mock::Book';
     is $after->id, 1, 'assert id';
-    is $after->title, 'book4', 'assert title';
+    is $after->title, 'book5', 'assert title';
 }
 
 {
     note 'row object update by update method';
     my $before = Mock::Book->find(1);
-    is $before->title, 'book4', 'assert title before update';
+    is $before->title, 'book5', 'assert title before update';
     ok $before->update({ title => 'book1' }), 'update succeeded';
     is $before->id, '1', 'assert id after update';
     is $before->title, 'book1', 'assert title after update';
@@ -34,9 +33,9 @@ END   { unlink './t/main.db' }
     is $after->id, 1, 'assert id';
     is $after->title, 'book1', 'assert title';
 
-    $after->title('book4');
+    $after->title('book5');
     ok $after->update, 'update with no args (same as save)';
-    is(Mock::Book->find(1)->title, 'book4', 'assert title');
+    is(Mock::Book->find(1)->title, 'book5', 'assert title');
 
     throws_ok { $after->update({ id => 'aaa' }) }
         qr/^Attribute \(id\) does not pass the type constraint/,
@@ -81,6 +80,6 @@ END   { unlink './t/main.db' }
         qr/^Update needs where sentence/,
         'needs where sentence when call not for row';
 
-    ok($model->update({ title => 'book4' }, { id => 1 }), 'update succeeded');
-    is($model->find(1)->title, 'book4', 'assert title');
+    ok($model->update({ title => 'book5' }, { id => 1 }), 'update succeeded');
+    is($model->find(1)->title, 'book5', 'assert title');
 }
