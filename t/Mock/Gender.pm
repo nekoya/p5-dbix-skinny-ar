@@ -15,4 +15,7 @@ has 'name' => (
     isa => enum([ qw/male female/ ]),
 );
 
+__PACKAGE__->has_one('author');
+__PACKAGE__->has_many('authors');
+
 1;

@@ -20,4 +20,6 @@ has 'title' => (
     trigger => sub { shift->chk_unique('title') },
 );
 
+__PACKAGE__->belongs_to('author');
+
 1;
