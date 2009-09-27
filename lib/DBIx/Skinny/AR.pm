@@ -171,11 +171,11 @@ sub belongs_to {
     my ($class, $method, $params) = @_;
     croak 'belongs_to needs method name' unless $method;
 
-    my $self_key = $params->{ self_key } || $method . '_id';
     my $target_class = $params->{ target_class }
         || $class->_get_namespace . ucfirst $method;
     $class->_ensure_load_class($target_class);
     my $target_key = $params->{ target_key } || $target_class->_pk;
+    my $self_key = $params->{ self_key } || $method . '_' . $target_class->_pk;
     my $clearer = 'clear_' . $method;
 
     $class->meta->add_attribute(
