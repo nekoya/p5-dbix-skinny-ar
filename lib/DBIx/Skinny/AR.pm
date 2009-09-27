@@ -233,16 +233,27 @@ sub has_one {
 sub has_many {
     my ($class, $method, $params) = @_;
     croak 'has_many needs method name' unless $method;
-    my ($target, $column) = $class->_prepare_related_params(to_S($method), $params);
-    {
-        no strict 'refs';
-        *{"$class\::$method"} = sub {
+
+    my $self_key = $params->{ self_key } || $class->_pk;
+    my $target_class = $params->{ target_class }
+        || $class->_get_namespace . ucfirst(to_S $method);
+    $class->_ensure_load_class($target_class);
+    my $target_key = $params->{ target_key }
+        || lc $class->_get_suffix . '_id';
+
+    $class->meta->add_attribute(
+        $method,
+        is      => 'ro',
+        #isa     => $target_class,
+        lazy    => 1,
+        default => sub {
             my $self = shift or return;
-            my $where = shift || {};
-            $where->{ $column } = $self->id;
-            return $target->find_all($where);
+            my $ident = $self->can($self_key)
+                ? $self->$self_key
+                : $self->row->$self_key or croak "Couldn't fetch $self_key";
+            $target_class->find_all({ $target_key => $ident });
         }
-    }
+    );
 }
 
 sub many_to_many {
