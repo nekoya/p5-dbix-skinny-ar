@@ -5,7 +5,7 @@ use Mock::Basic;
 BEGIN { Mock::Basic->setup_db }
 END   { unlink './t/main.db'  }
 
-use Test::More tests => 9;
+use Test::More tests => 6;
 
 {
     note 'call count as class method';
@@ -15,15 +15,7 @@ use Test::More tests => 9;
 }
 
 {
-    note 'call count as instance method';
-    my $model = Mock::Book->new;
-    is($model->count({ title => 'book0' }), 0, 'no amount of count');
-    is($model->count, 4, 'count all');
-    is($model->count({ title => 'book1' }), 1, 'count by title');
-}
-
-{
-    note 'count with custom pk';
+    note 'call count as instance method, and custom PK';
     my $model = Mock::Author->new;
     is($model->count({ name => 'Kate' }), 0, 'no amount of count');
     is($model->count, 3, 'count all');
