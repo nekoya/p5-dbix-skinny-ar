@@ -5,29 +5,27 @@ use Mock::Basic;
 BEGIN { Mock::Basic->setup_db }
 END   { unlink './t/main.db'  }
 
-use Test::More tests => 38;
+use Test::More tests => 34;
 
 {
     note 'call find_all as class method';
     is_deeply(Mock::Book->find_all({ title => 'book0' }), [], 'return empty arrayref when any record were not exists');
 
     ok my $books= Mock::Book->find_all, 'find all';
-    is scalar @$books, 4, 'amount of rows';
+    is scalar @$books, 3, 'amount of rows';
     is $books->[0]->title, 'book1', 'first  book title';
     is $books->[1]->title, 'book2', 'second book title';
     is $books->[2]->title, 'book3', 'third  book title';
-    is $books->[3]->title, 'book4', 'fourth book title';
 
     ok $books = Mock::Book->find_all({ title => 'book2' }), 'find_all by title';
     is scalar @$books, 1, 'amount of rows';
     is $books->[0]->title, 'book2', 'first  book title';
 
     ok $books = Mock::Book->find_all(undef, { order_by => { id => 'desc' } }), 'find_all with options';
-    is scalar @$books, 4, 'amount of rows';
-    is $books->[0]->title, 'book4', 'first  book title';
-    is $books->[1]->title, 'book3', 'second book title';
-    is $books->[2]->title, 'book2', 'third  book title';
-    is $books->[3]->title, 'book1', 'fourth book title';
+    is scalar @$books, 3, 'amount of rows';
+    is $books->[0]->title, 'book3', 'first  book title';
+    is $books->[1]->title, 'book2', 'second book title';
+    is $books->[2]->title, 'book1', 'third  book title';
 }
 
 {
@@ -38,22 +36,20 @@ use Test::More tests => 38;
     is_deeply($model->find_all({ title => 'book0' }), [], 'return empty arrayref when any record were not exists');
 
     ok my $books= $model->find_all, 'find all';
-    is scalar @$books, 4, 'amount of rows';
+    is scalar @$books, 3, 'amount of rows';
     is $books->[0]->title, 'book1', 'first  book title';
     is $books->[1]->title, 'book2', 'second book title';
     is $books->[2]->title, 'book3', 'third  book title';
-    is $books->[3]->title, 'book4', 'fourth book title';
 
     ok $books = $model->find_all({ title => 'book2' }), 'find_all by title';
     is scalar @$books, 1, 'amount of rows';
     is $books->[0]->title, 'book2', 'first  book title';
 
     ok $books = $model->find_all(undef, { order_by => { id => 'desc' } }), 'find_all with options';
-    is scalar @$books, 4, 'amount of rows';
-    is $books->[0]->title, 'book4', 'first  book title';
-    is $books->[1]->title, 'book3', 'second book title';
-    is $books->[2]->title, 'book2', 'third  book title';
-    is $books->[3]->title, 'book1', 'fourth book title';
+    is scalar @$books, 3, 'amount of rows';
+    is $books->[0]->title, 'book3', 'first  book title';
+    is $books->[1]->title, 'book2', 'second book title';
+    is $books->[2]->title, 'book1', 'third  book title';
 }
 
 {

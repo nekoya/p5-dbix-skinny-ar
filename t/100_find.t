@@ -25,7 +25,7 @@ use Test::More tests => 31;
 
     ok my $last = Mock::Book->find(undef, { order_by => { id => 'desc' } }), 'find last row';
     isa_ok $last, 'Mock::Book';
-    is $last->title, 'book4', 'assert title';
+    is $last->title, 'book3', 'assert title';
 }
 
 {
@@ -49,7 +49,7 @@ use Test::More tests => 31;
 
     ok my $last = $model->find(undef, { order_by => { id => 'desc' } }), 'find last row';
     isa_ok $last, 'Mock::Book';
-    is $last->title, 'book4', 'assert title';
+    is $last->title, 'book3', 'assert title';
 }
 
 {

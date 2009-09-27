@@ -15,9 +15,10 @@ sub setup_db {
         )
     });
     $db->do(q{
-        CREATE TABLE writers (
-            id    INTEGER PRIMARY KEY AUTOINCREMENT,
-            name  TEXT
+        CREATE TABLE authors (
+            id           INTEGER PRIMARY KEY AUTOINCREMENT,
+            gender_name  TEXT,
+            name         TEXT
         )
     });
     $db->do(q{
@@ -29,12 +30,11 @@ sub setup_db {
         { id => 1, author_id => 1, title => 'book1' },
         { id => 2, author_id => 2, title => 'book2' },
         { id => 3, author_id => 1, title => 'book3' },
-        { id => 4, author_id => 1, title => 'book4' },
     ]);
-    $db->bulk_insert('writers', [
-        { name => 'Mike' },
-        { name => 'Lisa' },
-        { name => 'John' },
+    $db->bulk_insert('authors', [
+        { id => 1, name => 'Mike' },
+        { id => 2, name => 'Lisa' },
+        { id => 3, name => 'John' },
     ]);
     $db->bulk_insert('genders', [
         { name => 'male' },
@@ -51,7 +51,7 @@ install_table books => schema {
     columns qw/id title/;
 };
 
-install_table writers => schema {
+install_table authors => schema {
     pk 'name';
     columns qw/name/;
 };
@@ -87,8 +87,6 @@ has 'title' => (
 package Mock::Author;
 use Any::Moose;
 extends 'Mock::AR';
-
-sub table { 'writers' }
 
 has 'name' => (
     is  => 'rw',

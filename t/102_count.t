@@ -10,7 +10,7 @@ use Test::More tests => 6;
 {
     note 'call count as class method';
     is(Mock::Book->count({ title => 'book0' }), 0, 'no amount of count');
-    is(Mock::Book->count, 4, 'count all');
+    is(Mock::Book->count, 3, 'count all');
     is(Mock::Book->count({ title => 'book1' }), 1, 'count by title');
 }
 
