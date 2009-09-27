@@ -1,12 +1,13 @@
 use lib './t';
 use FindBin::libs;
-use Mock::Basic;
+use Test::More tests => 29;
+use Test::Exception;
+use Mock::DB;
 
-BEGIN { Mock::Basic->setup_db }
+BEGIN { Mock::DB->setup_test_db }
 END   { unlink './t/main.db'  }
 
-use Test::More tests => 26;
-use Test::Exception;
+use Mock::Book;
 {
     note 'row object update by save method';
     my $before = Mock::Book->find(1);
@@ -18,6 +19,11 @@ use Test::Exception;
     isa_ok $after, 'Mock::Book';
     is $after->id, 1, 'assert id';
     is $after->title, 'book5', 'assert title';
+
+    note 'save is not allowed parameters';
+    ok $after->save({ title => 'book0' }), 'call save ok';
+    isnt $after->title, 'book0', 'title was not modified';
+    isnt(Mock::Book->find(1)->title, 'book0', 'title was not modified');
 }
 
 {

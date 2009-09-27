@@ -1,27 +1,29 @@
 use lib './t';
 use FindBin::libs;
-use Mock::Basic;
-
-BEGIN { Mock::Basic->setup_db }
-END   { unlink './t/main.db'  }
-
 use Test::More tests => 12;
 use Test::Exception;
+use Mock::DB;
+
+BEGIN { Mock::DB->setup_test_db }
+END   { unlink './t/main.db'  }
+
+use Mock::Book;
+use Mock::Gender;
 {
     note 'call create as class method';
-    ok my $book5 = Mock::Book->create({ title => 'book5' }), 'create book5';
-    isa_ok $book5, 'Mock::Book';
-    is $book5->id, 5, 'assert id';
-    is $book5->title, 'book5', 'assert title';
+    ok my $book4 = Mock::Book->create({ title => 'book4' }), 'create book4';
+    isa_ok $book4, 'Mock::Book';
+    is $book4->id, 4, 'assert id';
+    is $book4->title, 'book4', 'assert title';
 }
 
 {
     note 'call create as instance method';
     my $model = Mock::Book->new;
-    ok my $book6 = Mock::Book->create({ title => 'book6' }), 'create book6';
-    isa_ok $book6, 'Mock::Book';
-    is $book6->id, 6, 'assert id';
-    is $book6->title, 'book6', 'assert title';
+    ok my $book5 = Mock::Book->create({ title => 'book5' }), 'create book5';
+    isa_ok $book5, 'Mock::Book';
+    is $book5->id, 5, 'assert id';
+    is $book5->title, 'book5', 'assert title';
 }
 
 {
