@@ -4,7 +4,7 @@ extends 'Mock::AR';
 
 use Carp;
 
-has 'code' => (
+has 'id' => (
     is  => 'rw',
     isa => 'Undef | Int',
 );

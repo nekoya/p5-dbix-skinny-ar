@@ -5,11 +5,6 @@ extends 'Mock::AR';
 
 sub table { 'sexes' }
 
-has 'id' => (
-    is  => 'rw',
-    isa => 'Undef | Int',
-);
-
 has 'name' => (
     is  => 'rw',
     isa => enum([ qw/male female/ ]),

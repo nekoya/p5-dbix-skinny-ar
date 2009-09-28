@@ -1,6 +1,6 @@
 use lib './t';
 use FindBin::libs;
-use Test::More tests => 17;
+use Test::More tests => 19;
 use Test::Exception;
 use Mock::DB;
 
@@ -8,7 +8,7 @@ BEGIN { Mock::DB->setup_test_db }
 END   { unlink './t/main.db'  }
 
 use Mock::Book;
-use Mock::Gender;
+use Mock::City;
 {
     note "belongs_to default settings";
     my $book = Mock::Book->find({ title => 'book1' });
@@ -36,8 +36,14 @@ use Mock::Gender;
 }
 {
     note "auto detect not id PK";
-    my $author = Mock::Author->find(1);
+    my $author = Mock::Author->find(2);
     ok my $gender = $author->gender, 'get related object';
     isa_ok $gender, 'Mock::Gender';
-    is $gender->id, 1, 'assert id';
+    is $gender->name, 'female', 'assert name';
+}
+{
+    note "belongs_to options (forengi key is not PK)";
+    my $city = Mock::City->find(1);
+    ok my $pref = $city->pref, 'get related object';
+    is $pref->name, 'Tokyo', 'assert name';
 }

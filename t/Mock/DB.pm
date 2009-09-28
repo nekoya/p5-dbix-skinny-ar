@@ -43,7 +43,6 @@ sub setup_test_db {
 
     $db->do(q{
         CREATE TABLE sexes (
-            id     INTEGER PRIMARY KEY AUTOINCREMENT,
             name   TEXT
         )
     });
@@ -80,7 +79,7 @@ sub setup_test_db {
 
     $db->do(q{
         CREATE TABLE prefectures (
-            code  INTEGER PRIMARY KEY AUTOINCREMENT,
+            id    INTEGER PRIMARY KEY AUTOINCREMENT,
             name  INTEGER
         )
     });
@@ -88,7 +87,7 @@ sub setup_test_db {
     $db->do(q{
         CREATE TABLE cities (
             id      INTEGER PRIMARY KEY AUTOINCREMENT,
-            p_code  INTEGER,
+            p_name  INTEGER,
             name    INTEGER
         )
     });
@@ -110,8 +109,8 @@ sub setup_test_db {
     ]);
 
     $db->bulk_insert('sexes', [
-        { id => 1, name => 'male'   },
-        { id => 2, name => 'female' },
+        { name => 'male'   },
+        { name => 'female' },
     ]);
 
     $db->bulk_insert('categories', [
@@ -138,14 +137,12 @@ sub setup_test_db {
     ]);
 
     $db->bulk_insert('prefectures', [
-        { code => 1, name => 'Tokyo' },
-        { code => 2, name => 'Kyoto' },
+        { id => 1, name => 'Kyoto' },
+        { id => 2, name => 'Tokyo' },
     ]);
 
     $db->bulk_insert('cities', [
-        { id => 1, p_code => 1, name => 'Mitaka' },
-        { id => 2, p_code => 1, name => 'Chofu' },
-        { id => 3, p_code => 3, name => 'Sapporo' },
+        { id => 1, p_name => 'Tokyo', name => 'Mitaka' },
     ]);
 }
 
@@ -169,7 +166,7 @@ install_table pseudonyms => schema {
 
 install_table sexes => schema {
     pk 'name';
-    columns qw/id name/;
+    columns qw/name/;
 };
 
 install_table categories => schema {
@@ -193,13 +190,13 @@ install_table books_libraries => schema {
 };
 
 install_table prefectures => schema {
-    pk 'code';
-    columns qw/code name/;
+    pk 'id';
+    columns qw/id name/;
 };
 
 install_table cities => schema {
     pk 'id';
-    columns qw/id p_code name/;
+    columns qw/id p_name name/;
 };
 
 1;

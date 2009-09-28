@@ -7,14 +7,22 @@ has 'id' => (
     isa => 'Undef | Int',
 );
 
-has 'p_code' => (
+has 'p_name' => (
     is  => 'rw',
-    isa => 'Int',
+    isa => 'Str',
 );
 
 has 'name' => (
     is      => 'rw',
     isa     => 'Str',
+);
+
+__PACKAGE__->belongs_to(
+    'pref' => {
+        self_key     => 'p_name',
+        target_class => 'Mock::Prefecture',
+        target_key   => 'name',
+    }
 );
 
 1;
