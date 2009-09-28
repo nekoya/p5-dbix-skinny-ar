@@ -47,3 +47,12 @@ use Mock::City;
     ok my $pref = $city->pref, 'get related object';
     is $pref->name, 'Tokyo', 'assert name';
 }
+{
+    note "clear related obejct manually";
+    my $book = Mock::Book->find(1);
+    is $book->author->name, 'Mike', 'assert name';
+    ok(Mock::DB->update('authors', { name => 'David' }, { id => 1 }), 'updated DB');
+    is $book->author->name, 'Mike', 'name was not modified';
+    ok $book->clear_author, 'clear author';
+    is $book->author->name, 'David', 'name was modified';
+}
