@@ -247,7 +247,7 @@ sub has_many {
     $class->meta->add_attribute(
         $method,
         is      => 'ro',
-        #isa     => $target_class,
+        isa     => "ArrayRef[$target_class]",
         lazy    => 1,
         default => sub {
             my $self = shift or return;
