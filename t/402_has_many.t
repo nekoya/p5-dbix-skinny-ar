@@ -10,7 +10,7 @@ END   { unlink './t/main.db'  }
 use Mock::Gender;
 use Mock::Prefecture;
 {
-    note "has_one default settings";
+    note "has_many default settings";
     my $author = Mock::Author->find(1);
     ok my $books = $author->books, 'get related objects';
     is scalar @$books, 2, 'amount of rows';
