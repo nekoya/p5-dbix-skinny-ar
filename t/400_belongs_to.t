@@ -42,7 +42,7 @@ use Mock::City;
     is $gender->name, 'female', 'assert name';
 }
 {
-    note "belongs_to options (forengi key is not PK)";
+    note "belongs_to options (foreign key is not PK)";
     my $city = Mock::City->find(1);
     ok my $pref = $city->pref, 'get related object';
     is $pref->name, 'Tokyo', 'assert name';
