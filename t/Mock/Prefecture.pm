@@ -22,4 +22,12 @@ __PACKAGE__->has_one(
     }
 );
 
+__PACKAGE__->has_many(
+    'towns' => {
+        self_key     => 'name',
+        target_class => 'Mock::City',
+        target_key   => 'p_name',
+    }
+);
+
 1;
