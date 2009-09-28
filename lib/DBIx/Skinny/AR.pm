@@ -221,7 +221,7 @@ sub has_one {
     $class->meta->add_attribute(
         $method,
         is      => 'ro',
-        isa     => $target_class,
+        isa     => "Undef | $target_class",
         lazy    => 1,
         default => sub {
             my $self = shift or return;
