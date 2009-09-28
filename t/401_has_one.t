@@ -31,7 +31,7 @@ use Mock::Prefecture;
 {
     note "belongs_to options (foreign key is not PK)";
     my $pref = Mock::Prefecture->find(2);
-    ok my $city = $pref->town, 'get related object';
-    is $city->name, 'Mitaka', 'assert name';
+    ok my $town = $pref->town, 'get related object';
+    is $town->name, 'Mitaka', 'assert name';
 }
 
