@@ -263,42 +263,49 @@ sub has_many {
 sub many_to_many {
     my ($class, $method, $params) = @_;
     croak 'many_to_many needs method name' unless $method;
-    $params ||= {};
-    my $glue = $params->{ glue } or croak 'many_to_many needs glue class name';
-    my $target = $params->{ target }
-        || $class->_get_namespace . ucfirst to_S($method);
-    my $foreign_key = $params->{ key } || to_S($method) . '_id';
-    my $self_key = $params->{ self } || lc $class->_get_suffix . '_id';
-    {
-        no strict 'refs';
-        *{"$class\::$method"} = sub {
-            my $self = shift or return;
-            my $where = shift || {};
-            my @ids;
-            my $rs = $self->db->search($glue, { $self_key => $self->id });
-            while ( my $row = $rs->next ) {
-                push @ids, $row->$foreign_key;
-            }
-            $where->{ id } = { IN => \@ids };
-            return @ids ? $target->find_all($where) : [];
+
+    my $target = to_S $method;
+    my $self_key = $params->{ self_key } || $class->_pk;
+    my $target_class = $params->{ target_class }
+        || $class->_get_namespace . ucfirst $target;
+    $class->_ensure_load_class($target_class);
+    my $target_key = $params->{ target_key }
+        || $target_class->_pk;
+
+    $params->{ glue } ||= {};
+    my $glue_table = $params->{ glue }->{ table };
+    unless ( $glue_table ) {
+        my $suffix = to_PL(lc $class->_get_suffix);
+        $glue_table = $method . '_' . $suffix;
+        unless ( exists $class->db->schema->schema_info->{ $glue_table } ) {
+            $glue_table = $suffix . '_' . $method;
         }
     }
-}
+    my $glue_self_key = $params->{ glue }->{ self_key }
+        || lc $class->_get_suffix . '_' . $class->_pk;
+    my $glue_target_key = $params->{ glue }->{ target_key }
+        || $target . '_' . $target_class->_pk;
 
-sub _prepare_target_class {
-    my ($self, $method, $target) = @_;
-    my $class = ref $self || $self;
-    $target ||= $class->_get_namespace . ucfirst $method;
-    $target->require or croak "cannot require $target";
-    return $target;
-}
-
-sub _prepare_related_params {
-    my ($class, $method, $params) = @_;
-    $params ||= {};
-    my $target = $class->_prepare_target_class($method, $params->{ class });
-    my $column = $params->{ key } || lc $class->_get_suffix . '_id';
-    return ($target, $column);
+    $class->meta->add_attribute(
+        $method,
+        is      => 'ro',
+        #isa     => $target_class,
+        lazy    => 1,
+        default => sub {
+            my $self = shift or return;
+            my $where = shift || {};
+            my $ident = $self->can($self_key)
+                ? $self->$self_key
+                : $self->row->$self_key or croak "Couldn't fetch $self_key";
+            my @target_keys;
+            my $rs = $self->db->search($glue_table, { $glue_self_key => $ident });
+            while ( my $row = $rs->next ) {
+                push @target_keys, $row->$glue_target_key;
+            }
+            $where->{ $target_key } = { IN => \@target_keys };
+            return @target_keys ? $target_class->find_all($where) : [];
+        }
+    );
 }
 
 sub _get_namespace {

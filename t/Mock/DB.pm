@@ -55,10 +55,10 @@ sub setup_test_db {
     });
 
     $db->do(q{
-        CREATE TABLE books_categories (
-            id            INTEGER PRIMARY KEY AUTOINCREMENT,
-            book_id       INTEGER,
-            category_id   INTEGER
+        CREATE TABLE book_categ (
+            id      INTEGER PRIMARY KEY AUTOINCREMENT,
+            b_titl  TEXT,
+            c_name  TEXT
         )
     });
 
@@ -116,14 +116,11 @@ sub setup_test_db {
     $db->bulk_insert('categories', [
         { id => 1, name => 'novel' },
         { id => 2, name => 'nonfiction' },
-        { id => 3, name => 'science' },
     ]);
 
-    $db->bulk_insert('books_categories', [
-        { id => 1, book_id => 1, category_id => 1 },
-        { id => 2, book_id => 2, category_id => 2 },
-        { id => 3, book_id => 3, category_id => 2 },
-        { id => 4, book_id => 3, category_id => 3 },
+    $db->bulk_insert('book_categ', [
+        { id => 1, b_titl => 'book1', c_name => 'novel' },
+        { id => 2, b_titl => 'book2', c_name => 'novel' },
     ]);
 
     $db->bulk_insert('libraries', [
@@ -133,7 +130,8 @@ sub setup_test_db {
 
     $db->bulk_insert('books_libraries', [
         { id => 1, book_id => 1, library_id => 1 },
-        { id => 2, book_id => 2, library_id => 2 },
+        { id => 2, book_id => 1, library_id => 2 },
+        { id => 3, book_id => 2, library_id => 1 },
     ]);
 
     $db->bulk_insert('prefectures', [
@@ -174,9 +172,9 @@ install_table categories => schema {
     columns qw/id name/;
 };
 
-install_table books_categories => schema {
+install_table book_categ => schema {
     pk 'id';
-    columns qw/id book_id category_id/;
+    columns qw/id b_titl c_name/;
 };
 
 install_table libraries => schema {

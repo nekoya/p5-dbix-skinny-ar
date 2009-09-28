@@ -1,46 +1,43 @@
-use t::Utils;
-use Mock::Language;
-use Mock::Member;
-use Test::Declare;
+use lib './t';
+use FindBin::libs;
+use Test::More tests => 17;
+use Test::Exception;
+use Mock::DB;
 
-plan tests => blocks;
+BEGIN { Mock::DB->setup_test_db }
+END   { unlink './t/main.db'  }
 
-describe 'instance object test' => run {
-    init {
-        Mock::Basic->setup_test_db;
-    };
+use Mock::Book;
+use Mock::Category;
+{
+    note "default settings";
+    my $book = Mock::Book->find(1);
+    ok my $libs = $book->libraries, 'get related objects';
+    scalar @$libs, 2, 'amount of rows';
+    isa_ok $libs->[0], 'Mock::Library';
+    isa_ok $libs->[1], 'Mock::Library';
+    is $libs->[0]->name, 'Mitaka', 'assert name';
+    is $libs->[1]->name, 'Chofu', 'assert name';
 
-    test 'many_to_many' => run {
-        my $taro = Mock::Member->find({ name => 'taro' });
-        ok my $langs = $taro->languages, 'got many_to_many rows';
-        is scalar @$langs, 2, 'amount of languages';
-        is $langs->[0]->name, 'perl', 'first language name';
-        is $langs->[1]->name, 'python', 'second language name';
-    };
-
-    test 'additional where conds' => run {
-        my $taro = Mock::Member->find({ name => 'taro' });
-        ok my $langs = $taro->languages({ name => 'python' }), 'got many_to_many rows with additional where conditions';
-        is scalar @$langs, 1, 'amount of languages';
-        is $langs->[0]->name, 'python', 'first language name';
-    };
-
-    test 'no option' => run {
-        my $perl = Mock::Language->find({ name => 'perl' });
-        ok my $members = $perl->members, 'got many_to_many rows';
-        is scalar @$members, 2, 'amount of members';
-        is $members->[0]->name, 'taro', 'first member name';
-        is $members->[1]->name, 'hanako', 'second member name';
-    };
-
-    test 'no records' => run {
-        my $ruby = Mock::Language->find({ name => 'ruby' });
-        ok my $members = $ruby->members, 'got many_to_many rows';
-        is_deeply $members, [], 'return empty arrayref if no records';
-    };
-
-    cleanup {
-        unlink './t/main.db';
-    };
-};
-
+    ok my $books = $libs->[0]->books, 'get related objects';
+    scalar @$books, 2, 'amount of rows';
+    isa_ok $books->[0], 'Mock::Book';
+    isa_ok $books->[1], 'Mock::Book';
+    is $books->[0]->title, 'book1', 'assert name';
+    is $books->[1]->title, 'book2', 'assert name';
+}
+{
+    note "has norecords";
+    my $book = Mock::Book->find(3);
+    is_deeply $book->libraries, [], 'return empty arrayref when record not found';
+}
+{
+    note "many_to_many options (related not PK columns)";
+    my $categ = Mock::Category->find(1);
+    ok my $books = $categ->goods, 'get related objects';
+    is scalar @$books, 2, 'amount of rows';
+    isa_ok $books->[0], 'Mock::Book';
+    isa_ok $books->[1], 'Mock::Book';
+    is $books->[0]->title, 'book1', 'assert book title';
+    is $books->[1]->title, 'book2', 'assert book title';
+}

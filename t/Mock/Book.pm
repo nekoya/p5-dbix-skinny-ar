@@ -21,5 +21,6 @@ has 'title' => (
 );
 
 __PACKAGE__->belongs_to('author');
+__PACKAGE__->many_to_many('libraries');
 
 1;
