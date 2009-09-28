@@ -12,7 +12,6 @@ has 'id' => (
 has 'name' => (
     is      => 'rw',
     isa     => 'Str',
-    trigger => sub { shift->chk_unique('name') },
 );
 
 __PACKAGE__->has_one('book');
