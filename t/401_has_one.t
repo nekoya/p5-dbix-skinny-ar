@@ -1,73 +1,37 @@
-#BEGIN { $ENV{'ANY_MOOSE'} = 'Moose' }
 use lib './t';
 use FindBin::libs;
+use Test::More tests => 19;
+use Test::Exception;
+use Mock::DB;
 
-package Mock::Basic;
-use DBIx::Skinny setup => { dsn => 'dbi:SQLite:', username => '', password => '' };
-
-sub setup_db {
-    my $db = shift;
-    $db->do(q{
-        CREATE TABLE books (
-            id         INTEGER PRIMARY KEY AUTOINCREMENT,
-            author_id  INTEGER,
-            title      TEXT UNIQUE
-        )
-    });
-    $db->do(q{
-        CREATE TABLE authors (
-            id    INTEGER PRIMARY KEY AUTOINCREMENT,
-            name  TEXT
-        )
-    });
-    $db->bulk_insert('books', [
-        { id => 1, author_id => 2, title => 'book1' },
-    ]);
-    $db->bulk_insert('authors', [
-        { id => 1, name => 'Mike' },
-        { id => 2, name => 'Lisa' },
-    ]);
-}
-
-package Mock::Basic::Schema;
-use DBIx::Skinny::Schema;
-install_table books   => schema { pk 'id'; columns qw/id author_id title/ };
-install_table authors => schema { pk 'id'; columns qw/id name/ };
-
-package Mock::AR;
-use Any::Moose;
-extends 'DBIx::Skinny::AR';
-__PACKAGE__->setup('Mock::Basic');
-
-package Mock::Author;
-use Any::Moose;
-extends 'Mock::AR';
-has 'id'   => ( is => 'rw', isa => 'Undef | Int' );
-has 'name' => ( is => 'rw', isa => 'Str' );
-__PACKAGE__->has_one('book');
-
-package Mock::Book;
-use Any::Moose;
-extends 'Mock::AR';
-has 'id'        => ( is => 'rw', isa => 'Undef | Int' );
-has 'author_id' => ( is => 'rw', isa => 'Int' );
-has 'title'     => ( is => 'rw', isa => 'Str' );
-
-package main;
-
-Mock::Basic->setup_db;
+BEGIN { Mock::DB->setup_test_db }
 END   { unlink './t/main.db'  }
 
-use Test::More tests => 4;
-use Test::Exception;
+use Mock::Gender;
+use Mock::Prefecture;
 {
-    my $lisa = Mock::Author->find({ name => 'Lisa' });
-    ok my $book = $lisa->book, 'get related object';
+    note "has_one default settings";
+    my $author = Mock::Author->find(1);
+    ok my $book = $author->book, 'get related object';
     isa_ok $book, 'Mock::Book';
-    is $book->title, 'book1', 'assert book name';
+    is $book->id, 1, 'assert book id';
+}
+{
+    note "has no records";
+    my $author = Mock::Author->find(3);
+    is $author->book, undef, 'return undef when record not found';
+}
+{
+    note "auto detect not id PK";
+    my $gender = Mock::Gender->find('female');
+    ok my $author = $gender->author, 'get related object';
+    isa_ok $author, 'Mock::Author';
+    is $author->name, 'Lisa', 'assert name';
+}
+{
+    note "belongs_to options (foreign key is not PK)";
+    my $pref = Mock::Prefecture->find(2);
+    ok my $city = $pref->town, 'get related object';
+    is $city->name, 'Mitaka', 'assert name';
 }
 
-{
-    my $mike = Mock::Author->find({ name => 'Mike' });
-    is $mike->book, undef, 'related object not found';
-}

@@ -14,4 +14,12 @@ has 'name' => (
     isa     => 'Str',
 );
 
+__PACKAGE__->has_one(
+    'town' => {
+        self_key     => 'name',
+        target_class => 'Mock::City',
+        target_key   => 'p_name',
+    }
+);
+
 1;
