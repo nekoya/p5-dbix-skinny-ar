@@ -200,11 +200,10 @@ sub _add_clearer {
     my ($self, $key, $clearer) = @_;
     my $attr = $self->meta->get_attribute($key);
     if ( $attr && $self->can($key) ) {
-        croak "$key already has trigger" if $attr->has_trigger;
-        $self->meta->add_attribute(
-            '+' . $key,
-            trigger => sub { shift->$clearer },
-        );
+        $self->meta->add_after_method_modifier($key, sub {
+            my $self = shift;
+            $self->$clearer if @_;
+        });
     }
 }
 
