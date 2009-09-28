@@ -243,7 +243,7 @@ sub has_many {
         || $class->_get_namespace . ucfirst(to_S $method);
     $class->_ensure_load_class($target_class);
     my $target_key = $params->{ target_key }
-        || lc $class->_get_suffix . '_' . $target_class->_pk;
+        || lc $class->_get_suffix . '_' . $class->_pk;
 
     $class->meta->add_attribute(
         $method,
