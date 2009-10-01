@@ -41,3 +41,12 @@ use Mock::Category;
     is $books->[0]->title, 'book1', 'assert book title';
     is $books->[1]->title, 'book2', 'assert book title';
 }
+{
+    note "clear related obejct manually";
+    my $book = Mock::Book->find(1);
+    is $book->libraries->[0]->name, 'Mitaka', 'assert name';
+    ok(Mock::DB->update('libraries', { name => 'Mikaka' }, { id => 1 }), 'updated DB');
+    is $book->libraries->[0]->name, 'Mitaka', 'name was not modified';
+    ok $book->clear_libraries, 'clear book';
+    is $book->libraries->[0]->name, 'Mikaka', 'name was modified';
+}

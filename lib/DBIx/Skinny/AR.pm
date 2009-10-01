@@ -291,6 +291,7 @@ sub many_to_many {
         $method,
         is      => 'ro',
         isa     => "ArrayRef[$target_class]",
+        clearer => 'clear_' . $method,
         lazy    => 1,
         default => sub {
             my $self = shift or return;
