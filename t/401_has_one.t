@@ -1,6 +1,6 @@
 use lib './t';
 use FindBin::libs;
-use Test::More tests => 9;
+use Test::More tests => 14;
 use Test::Exception;
 use Mock::DB;
 
@@ -34,4 +34,12 @@ use Mock::Prefecture;
     ok my $town = $pref->town, 'get related object';
     is $town->name, 'Mitaka', 'assert name';
 }
-
+{
+    note "clear related obejct manually";
+    my $author = Mock::Author->find(1);
+    is $author->book->title, 'book1', 'assert title';
+    ok(Mock::DB->update('books', { title => 'book4' }, { id => 1 }), 'updated DB');
+    is $author->book->title, 'book1', 'title was not modified';
+    ok $author->clear_book, 'clear book';
+    is $author->book->title, 'book4', 'title was modified';
+}

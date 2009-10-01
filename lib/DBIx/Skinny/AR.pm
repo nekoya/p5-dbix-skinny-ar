@@ -222,6 +222,7 @@ sub has_one {
         $method,
         is      => 'ro',
         isa     => "Undef | $target_class",
+        clearer => 'clear_' . $method,
         lazy    => 1,
         default => sub {
             my $self = shift or return;
