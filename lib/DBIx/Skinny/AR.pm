@@ -180,11 +180,12 @@ sub belongs_to {
 
     $class->meta->add_attribute(
         $method,
-        is      => 'ro',
-        isa     => $target_class,
-        clearer => $clearer,
-        lazy    => 1,
-        default => sub {
+        is       => 'ro',
+        isa      => $target_class,
+        wark_ref => 1,
+        clearer  => $clearer,
+        lazy     => 1,
+        default  => sub {
             my $self = shift or return;
             my $target = $self->can($self_key)
                 ? $self->$self_key
@@ -247,11 +248,12 @@ sub has_many {
 
     $class->meta->add_attribute(
         $method,
-        is      => 'ro',
-        isa     => "ArrayRef[$target_class]",
-        clearer => 'clear_' . $method,
-        lazy    => 1,
-        default => sub {
+        is       => 'ro',
+        isa      => "ArrayRef[$target_class]",
+        wark_ref => 1,
+        clearer  => 'clear_' . $method,
+        lazy     => 1,
+        default  => sub {
             my $self = shift or return;
             my $ident = $self->can($self_key)
                 ? $self->$self_key
@@ -289,11 +291,12 @@ sub many_to_many {
 
     $class->meta->add_attribute(
         $method,
-        is      => 'ro',
-        isa     => "ArrayRef[$target_class]",
-        clearer => 'clear_' . $method,
-        lazy    => 1,
-        default => sub {
+        is       => 'ro',
+        isa      => "ArrayRef[$target_class]",
+        wark_ref => 1,
+        clearer  => 'clear_' . $method,
+        lazy     => 1,
+        default  => sub {
             my $self = shift or return;
             my $where = shift || {};
             my $ident = $self->can($self_key)
