@@ -1,6 +1,6 @@
 use lib './t';
 use FindBin::libs;
-use Test::More tests => 19;
+use Test::More tests => 24;
 use Test::Exception;
 use Mock::DB;
 
