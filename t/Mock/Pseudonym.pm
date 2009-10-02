@@ -19,6 +19,4 @@ has 'name' => (
     isa     => 'Str',
 );
 
-__PACKAGE__->set_unique_columns([ qw/author_id title/ ]);
-
 1;
