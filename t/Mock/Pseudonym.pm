@@ -9,10 +9,16 @@ has 'id' => (
     isa => 'Undef | Int',
 );
 
+has 'author_id' => (
+    is  => 'rw',
+    isa => 'Undef | Int',
+);
+
 has 'name' => (
     is      => 'rw',
     isa     => 'Str',
-    trigger => sub { shift->chk_unique('name') },
 );
+
+__PACKAGE__->set_unique_columns([ qw/author_id title/ ]);
 
 1;

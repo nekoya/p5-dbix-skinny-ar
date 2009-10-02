@@ -17,8 +17,9 @@ has 'author_id' => (
 has 'title' => (
     is      => 'rw',
     isa     => 'Str',
-    trigger => sub { shift->chk_unique('title') },
 );
+
+__PACKAGE__->set_unique_columns([ qw/title/ ]);
 
 __PACKAGE__->belongs_to('author');
 __PACKAGE__->many_to_many('libraries');

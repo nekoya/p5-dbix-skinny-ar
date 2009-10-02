@@ -9,6 +9,7 @@ use Any::Moose;
 extends any_moose('::Object'), 'Class::Data::Inheritable';
 
 __PACKAGE__->mk_classdata('db');
+__PACKAGE__->mk_classdata('unique_columns' => []);
 
 has 'row' => (
     is      => 'rw',
@@ -16,17 +17,13 @@ has 'row' => (
     trigger => \&_set_columns,
 );
 
+sub BUILD {
+    my $self = shift;
+    $self->_chk_unique_value($_) for @{ $self->unique_columns };
+}
+
 no Any::Moose;
 __PACKAGE__->meta->make_immutable;
-
-sub chk_unique {
-    my ($self, $column) = @_;
-    my $where = { $column => $self->$column };
-    my $pk = $self->_pk;
-    $where->{ $pk } = { '!=' => $self->$pk } if $self->$pk;
-    croak "Attribute ($column) does not pass the type constraint because: ".
-        $self->$column . " is not a unique value." if $self->count($where);
-}
 
 sub table {
     my ($self) = @_;
@@ -165,6 +162,33 @@ sub delete {
         croak 'Delete needs where sentence' unless $where;
         $self->db->delete($self->table, $where);
     }
+}
+
+sub set_unique_columns {
+    my ($class, $columns) = @_;
+    $columns = [ $columns ] unless ref $columns eq 'ARRAY';
+    $class->unique_columns($columns);
+    $class->_set_unique_column($_) for @$columns;
+}
+
+sub _set_unique_column {
+    my ($class, $column) = @_;
+    my $attr = $class->meta->get_attribute($column);
+    if ( $attr && $class->can($column) ) {
+        $class->meta->add_after_method_modifier($column, sub {
+            my $self = shift;
+            $self->_chk_unique_value($column) if @_;
+        });
+    }
+}
+
+sub _chk_unique_value {
+    my ($self, $key) = @_;
+    my $where = { $key => $self->$key };
+    my $pk = $self->_pk;
+    $where->{ $pk } = { '!=' => $self->$pk } if $self->$pk;
+    croak "Attribute ($key) does not pass the type constraint because: ".
+        $self->$key. " is not a unique value." if $self->count($where);
 }
 
 sub belongs_to {
