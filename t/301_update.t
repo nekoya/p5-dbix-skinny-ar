@@ -5,7 +5,6 @@ use Test::Exception;
 use Mock::DB;
 
 BEGIN { Mock::DB->setup_test_db }
-END   { unlink './t/main.db'  }
 
 use Mock::Book;
 {
