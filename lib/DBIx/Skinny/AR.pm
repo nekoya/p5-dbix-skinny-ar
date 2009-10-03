@@ -236,7 +236,6 @@ sub belongs_to {
         $method,
         is       => 'ro',
         isa      => $target_class,
-        #weak_ref => 1,
         clearer  => $clearer,
         lazy     => 1,
         default  => sub {
@@ -304,7 +303,6 @@ sub has_many {
         $method,
         is       => 'ro',
         isa      => "ArrayRef[$target_class]",
-        #weak_ref => 1,
         clearer  => 'clear_' . $method,
         lazy     => 1,
         default  => sub {
@@ -347,7 +345,6 @@ sub many_to_many {
         $method,
         is       => 'ro',
         isa      => "ArrayRef[$target_class]",
-        #weak_ref => 1,
         clearer  => 'clear_' . $method,
         lazy     => 1,
         default  => sub {
