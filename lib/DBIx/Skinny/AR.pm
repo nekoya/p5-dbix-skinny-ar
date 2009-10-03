@@ -19,8 +19,8 @@ after 'install_accessors' => sub {
 };
 
 local $@;
-my $code = "package " . any_moose . "::Meta::Attribute::Custom::Trait::Unique;\nsub register_implementation {'DBIx::Skinny::AR::Meta::Attribute::Custom::Trait::Unique'}";
-eval $code;
+eval "package " . any_moose . "::Meta::Attribute::Custom::Trait::Unique;\n".
+     "sub register_implementation {'DBIx::Skinny::AR::Meta::Attribute::Custom::Trait::Unique'}";
 die $@ if $@;
 
 package DBIx::Skinny::AR;
