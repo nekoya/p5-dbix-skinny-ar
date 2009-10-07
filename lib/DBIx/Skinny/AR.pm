@@ -36,19 +36,19 @@ sub table {
     to_PL(lc $table);
 }
 
-sub _columns {
+sub columns {
     my ($self) = @_;
     $self->db->schema->schema_info->{ $self->table }->{ columns };
 }
 
-sub _pk {
+sub pk {
     my ($self) = @_;
     $self->db->schema->schema_info->{ $self->table }->{ pk };
 }
 
 sub _set_columns {
     my ($self, $row) = @_;
-    for my $col ( @{ $self->_columns } ) {
+    for my $col ( @{ $self->columns } ) {
         $self->$col($row->$col) if $self->can($col);
     }
 }
@@ -56,7 +56,7 @@ sub _set_columns {
 sub _get_columns {
     my ($self) = @_;
     my $row;
-    for my $col ( @{ $self->_columns } ) {
+    for my $col ( @{ $self->columns } ) {
         $row->{ $col } = $self->$col if $self->can($col);
     }
     return $row;
@@ -82,7 +82,7 @@ sub _get_where {
     my ($self, $where) = @_;
     return $where if ref $where eq 'HASH';
     return {} unless $where;
-    return { $self->_pk => $where } if !ref $where;
+    return { $self->pk => $where } if !ref $where;
     croak 'Invalid where parameter';
 }
 
@@ -116,7 +116,7 @@ sub count {
     my ($self, $where) = @_;
     $self->db->count(
         $self->table,
-        $self->_pk,
+        $self->pk,
         $self->_get_where($where)
     );
 }
@@ -124,7 +124,7 @@ sub count {
 sub reload {
     my ($self) = @_;
     croak 'Reload not allowed call as class method' unless ref $self;
-    my $pk = $self->_pk;
+    my $pk = $self->pk;
     my $row = $self->db->single($self->table, { $pk => $self->$pk })
             or croak 'Record was deleted';
     $self->row($row);
@@ -189,7 +189,7 @@ sub _set_unique_column {
 sub _chk_unique_value {
     my ($self, $key) = @_;
     my $where = { $key => $self->$key };
-    my $pk = $self->_pk;
+    my $pk = $self->pk;
     $where->{ $pk } = { '!=' => $self->$pk } if $self->$pk;
     croak "Attribute ($key) does not pass the type constraint because: ".
         $self->$key. " is not a unique value." if $self->count($where);
@@ -202,8 +202,8 @@ sub belongs_to {
     my $target_class = $params->{ target_class }
         || $class->_get_namespace . ucfirst $method;
     $class->_ensure_load_class($target_class);
-    my $target_key = $params->{ target_key } || $target_class->_pk;
-    my $self_key = $params->{ self_key } || $method . '_' . $target_class->_pk;
+    my $target_key = $params->{ target_key } || $target_class->pk;
+    my $self_key = $params->{ self_key } || $method . '_' . $target_class->pk;
     my $clearer = 'clear_' . $method;
 
     $class->meta->add_attribute(
@@ -239,12 +239,12 @@ sub has_one {
     my ($class, $method, $params) = @_;
     croak 'has_one needs method name' unless $method;
 
-    my $self_key = $params->{ self_key } || $class->_pk;
+    my $self_key = $params->{ self_key } || $class->pk;
     my $target_class = $params->{ target_class }
         || $class->_get_namespace . ucfirst $method;
     $class->_ensure_load_class($target_class);
     my $target_key = $params->{ target_key }
-        || lc $class->_get_suffix . '_' . $class->_pk;
+        || lc $class->_get_suffix . '_' . $class->pk;
 
     $class->meta->add_attribute(
         $method,
@@ -266,12 +266,12 @@ sub has_many {
     my ($class, $method, $params) = @_;
     croak 'has_many needs method name' unless $method;
 
-    my $self_key = $params->{ self_key } || $class->_pk;
+    my $self_key = $params->{ self_key } || $class->pk;
     my $target_class = $params->{ target_class }
         || $class->_get_namespace . ucfirst(to_S $method);
     $class->_ensure_load_class($target_class);
     my $target_key = $params->{ target_key }
-        || lc $class->_get_suffix . '_' . $class->_pk;
+        || lc $class->_get_suffix . '_' . $class->pk;
 
     $class->meta->add_attribute(
         $method,
@@ -294,12 +294,12 @@ sub many_to_many {
     croak 'many_to_many needs method name' unless $method;
 
     my $target = to_S $method;
-    my $self_key = $params->{ self_key } || $class->_pk;
+    my $self_key = $params->{ self_key } || $class->pk;
     my $target_class = $params->{ target_class }
         || $class->_get_namespace . ucfirst $target;
     $class->_ensure_load_class($target_class);
     my $target_key = $params->{ target_key }
-        || $target_class->_pk;
+        || $target_class->pk;
 
     $params->{ glue } ||= {};
     my $glue_table = $params->{ glue }->{ table };
@@ -311,9 +311,9 @@ sub many_to_many {
         }
     }
     my $glue_self_key = $params->{ glue }->{ self_key }
-        || lc $class->_get_suffix . '_' . $class->_pk;
+        || lc $class->_get_suffix . '_' . $class->pk;
     my $glue_target_key = $params->{ glue }->{ target_key }
-        || $target . '_' . $target_class->_pk;
+        || $target . '_' . $target_class->pk;
 
     $class->meta->add_attribute(
         $method,
