@@ -1,13 +1,8 @@
 package DBIx::Skinny::AR;
-use DBIx::Skinny::AR::Meta::Attribute::Trait::Unique;
-
-our $VERSION = '0.0.1';
-
-use Carp;
-use Lingua::EN::Inflect::Number qw/to_S to_PL/;
-
 use Any::Moose;
 extends any_moose('::Object'), 'Class::Data::Inheritable';
+
+our $VERSION = '0.0.1';
 
 __PACKAGE__->mk_classdata('db');
 __PACKAGE__->mk_classdata('unique_columns' => []);
@@ -28,6 +23,11 @@ sub BUILD {
 
 no Any::Moose;
 __PACKAGE__->meta->make_immutable;
+
+use Carp;
+use Lingua::EN::Inflect::Number qw/to_S to_PL/;
+
+use DBIx::Skinny::AR::Meta::Attribute::Trait::Unique;
 
 sub table {
     my ($self) = @_;
