@@ -330,91 +330,17 @@ DBIx::Skinny::AR - DBIx::Skinny's wrapper like ActiveRecord
 
 =head1 SYNOPSIS
 
-setup your ar model (DBIx::Skinny already setup as MyApp::DB and MyApp::DB::Schema)
-
-    package MyApp::DB::AR;
-    use Any::Moose;
-    extends 'DBIx::Skinny::AR';
-
-    __PACKAGE__->setup({
-        db => 'MyApp::DB',
-        validator => {
-            module  => 'FormValidator::Simple',
-            plugins => [qw(
-                FormValidator::Simple::Plugin::DBIC::Unique
-                FormValidator::Simple::Plugin::Japanese
-                FormValidator::Simple::Plugin::NetAddr::IP
-            )],
-        },
-    });
-
-    1;
-
-create each model class
-
-    package MyApp::Book;
-    use Any::Moose;
-    extends 'MyApp::DB::AR';
-
-    __PACKAGE__->mk_accessors;
-
-    sub table { 'books' }
-
-    sub default_search_column { 'name' }
-
-    sub validation {
-        [
-            id           => [ qw/UINT/ ],
-            author_id    => [ qw/NOT_BLANK UINT/ ],
-            name         => [ qw/NOT_BLANK ASCII/, [ qw/LENGTH 0 255/ ] ],
-            { name => [ qw/id name/ ] } => [ [ 'DBIC_UNIQUE', __PACKAGE__, '!id', 'name' ] ],
-        ];
-    }
-
-    __PACKAGE__->belongs_to('author');
-
-    1;
-
-in your apps
-
-    use MyApp::Book;
-    my $book = MyApp::Book->find($book_name);
-    $book->name('new name');
-    $book->update;
-
-    my $books = MyApp::Book->find_all;
-
-    my $author = $book->author;
-
-
 =head1 DESCRIPTION
-
-DBIx::Skinny::AR provides some interfaces like ActiveRecord.
-
- - find/find_all by any conditions
- - return object wrapped DBIx::Skinny::Row
- - validate before create/update
- - support belongs_to/has_one/has_many/many_to_many relationships
-
-
-=head1 BUGS AND LIMITATIONS
-
-No bugs have been reported.
-
 
 =head1 AUTHOR
 
 Ryo Miyake  C<< <ryo.studiom@gmail.com> >>
 
-
 =head1 LICENCE AND COPYRIGHT
-
-Copyright (c) 2009, Ryo Miyake C<< <ryo.studiom@gmail.com> >>. All rights reserved.
 
 This module is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself. See L<perlartistic>.
 
-
 =head1 SEE ALSO
 
-DBIx::Skinny
+DBIx::Skinny, DBIx::Skinny::Schema::Loader, Any::Moose
