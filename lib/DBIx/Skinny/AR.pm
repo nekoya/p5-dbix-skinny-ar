@@ -28,6 +28,12 @@ use Lingua::EN::Inflect::Number qw/to_S to_PL/;
 
 use DBIx::Skinny::AR::Meta::Attribute::Trait::Unique;
 
+sub setup {
+    my ($class, $db_class) = @_;
+    $class->_ensure_load_class($db_class);
+    __PACKAGE__->db($db_class);
+}
+
 sub table {
     my ($self) = @_;
     my $table = ref $self || $self;
@@ -61,10 +67,13 @@ sub _get_columns {
     return $row;
 }
 
-sub setup {
-    my ($class, $db_class) = @_;
-    $class->_ensure_load_class($db_class);
-    __PACKAGE__->db($db_class);
+sub _chk_unique_value {
+    my ($self, $key) = @_;
+    my $where = { $key => $self->$key };
+    my $pk = $self->pk;
+    $where->{ $pk } = { '!=' => $self->$pk } if $self->$pk;
+    croak "Attribute ($key) does not pass the type constraint because: ".
+        $self->$key. " is not a unique value." if $self->count($where);
 }
 
 sub _get_where {
@@ -148,15 +157,6 @@ sub delete {
         croak 'Delete needs where sentence' unless $where;
         $self->db->delete($self->table, $where);
     }
-}
-
-sub _chk_unique_value {
-    my ($self, $key) = @_;
-    my $where = { $key => $self->$key };
-    my $pk = $self->pk;
-    $where->{ $pk } = { '!=' => $self->$pk } if $self->$pk;
-    croak "Attribute ($key) does not pass the type constraint because: ".
-        $self->$key. " is not a unique value." if $self->count($where);
 }
 
 sub belongs_to {
