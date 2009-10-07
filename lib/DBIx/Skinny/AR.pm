@@ -67,16 +67,6 @@ sub setup {
     __PACKAGE__->db($db_class);
 }
 
-sub debug {
-    my ($self, $debug) = @_;
-    $self->db->attribute->{ profile } = $debug;
-}
-
-sub query_log {
-    my ($self) = @_;
-    $self->db->profiler->query_log(@_);
-}
-
 sub _get_where {
     my ($self, $where) = @_;
     return $where if ref $where eq 'HASH';
