@@ -128,13 +128,6 @@ sub create {
     return $obj;
 }
 
-sub save {
-    my ($self) = @_;
-    croak 'Save not allowed call as class method' unless ref $self;
-    croak 'Save needs row object in your instance' unless $self->row;
-    $self->update;
-}
-
 sub update {
     my ($self, $args, $where) = @_;
     if ( ref $self && $self->row ) {
