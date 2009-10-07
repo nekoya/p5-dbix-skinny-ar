@@ -5,7 +5,6 @@ extends any_moose('::Object'), 'Class::Data::Inheritable';
 our $VERSION = '0.0.1';
 
 __PACKAGE__->mk_classdata('db');
-__PACKAGE__->mk_classdata('unique_columns' => []);
 
 has 'row' => (
     is      => 'rw',
@@ -165,24 +164,6 @@ sub delete {
     } else {
         croak 'Delete needs where sentence' unless $where;
         $self->db->delete($self->table, $where);
-    }
-}
-
-sub set_unique_columns {
-    my ($class, $columns) = @_;
-    $columns = [ $columns ] unless ref $columns eq 'ARRAY';
-    $class->unique_columns($columns);
-    $class->_set_unique_column($_) for @$columns;
-}
-
-sub _set_unique_column {
-    my ($class, $column) = @_;
-    my $attr = $class->meta->get_attribute($column);
-    if ( $attr && $class->can($column) ) {
-        $class->meta->add_after_method_modifier($column, sub {
-            my $self = shift;
-            $self->_chk_unique_value($column) if @_;
-        });
     }
 }
 
