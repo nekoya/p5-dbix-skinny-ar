@@ -1,4 +1,4 @@
-DBIx-Skinny-AR version 0.0.1
+This is Perl module DBIx::Skinny::AR
 
 INSTALLATION
 
@@ -10,7 +10,7 @@ To install this module, run the following commands:
 
 DOCUMENTATION
 
-Its documentation is available as in POD. So you can do:
+DBIx::Skinny::Schema::Loader documentation is available as in POD. So you can do:
 
     % perldoc DBIx::Skinny::AR
 
