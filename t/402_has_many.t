@@ -2,10 +2,8 @@ use lib './t';
 use FindBin::libs;
 use Test::More tests => 19;
 use Test::Exception;
-use Mock::DB;
 
-BEGIN { Mock::DB->setup_test_db }
-
+use Mock::SQLite;
 use Mock::Gender;
 use Mock::Prefecture;
 {
