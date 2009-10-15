@@ -182,7 +182,7 @@ sub belongs_to {
             my $self = shift or return;
             my $target = $self->can($self_key)
                 ? $self->$self_key
-                : $self->row->$self_key or croak "Couldn't fetch $self_key";
+                : $self->row->$self_key or return;
             my $related = $target_class->find({ $target_key => $target })
                 or croak "Related row was not found";
         }
@@ -324,7 +324,7 @@ sub _ensure_load_class {
 
 1;
 __END__
-
+=encoding utf8
 =head1 NAME
 
 DBIx::Skinny::AR - DBIx::Skinny's wrapper like ActiveRecord

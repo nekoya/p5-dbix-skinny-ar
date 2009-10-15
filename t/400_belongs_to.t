@@ -1,6 +1,6 @@
 use lib './t';
 use FindBin::libs;
-use Test::More tests => 24;
+use Test::More tests => 26;
 use Test::Exception;
 
 use Mock::SQLite;
@@ -43,6 +43,11 @@ use Mock::City;
     my $city = Mock::City->find(1);
     ok my $pref = $city->pref, 'get related object';
     is $pref->name, 'Tokyo', 'assert name';
+
+    note "return undef when foreign_key is null";
+    my $city = Mock::City->find(2);
+    is $city->p_name, undef, 'assert p_name';
+    is $city->pref, undef, 'not return related object';
 }
 {
     note "clear related obejct manually";

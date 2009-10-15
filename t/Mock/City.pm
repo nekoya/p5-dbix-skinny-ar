@@ -9,7 +9,7 @@ has 'id' => (
 
 has 'p_name' => (
     is  => 'rw',
-    isa => 'Str',
+    isa => 'Undef | Str',
 );
 
 has 'name' => (

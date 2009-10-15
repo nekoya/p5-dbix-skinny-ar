@@ -104,6 +104,7 @@ sub import {
         q{ INSERT INTO prefectures VALUES (2, 'Tokyo') },
 
         q{ INSERT INTO cities VALUES (1, 'Tokyo', 'Mitaka') },
+        q{ INSERT INTO cities VALUES (2, null, 'Unknown') },
     );
     $dbh->do($_) for @statements;
 }
