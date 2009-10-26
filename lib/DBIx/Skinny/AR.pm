@@ -26,6 +26,7 @@ no Any::Moose;
 __PACKAGE__->meta->make_immutable;
 
 use Carp;
+use Data::Page;
 use Lingua::EN::Inflect::Number qw/to_S to_PL/;
 
 use DBIx::Skinny::AR::Meta::Attribute::Trait::Unique;
@@ -86,6 +87,22 @@ sub _get_where {
     croak 'Invalid where parameter';
 }
 
+sub _parse_opt {
+    my ($self, $_opt) = @_;
+    return {} unless $_opt;
+    croak 'Invalid where parameter' unless ref $_opt eq 'HASH';
+    my %opt = %$_opt;
+    my $page = delete $opt{ page };
+    my $rows = delete $opt{ rows };
+    if ( $page || $rows ) {
+        croak 'Need page' unless $page;
+        croak 'Need rows' unless $rows;
+        $opt{ limit  } = $rows;
+        $opt{ offset } = $rows * ($page-1);
+    }
+    return \%opt;
+}
+
 sub find {
     my ($self, $where, $opt) = @_;
     my $class = ref $self || $self;
@@ -100,16 +117,21 @@ sub find {
 sub find_all {
     my ($self, $where, $opt) = @_;
     my $class = ref $self || $self;
+    my $_where = $self->_get_where($where);
     my $rs = $self->db->search(
         $self->table,
-        $self->_get_where($where),
-        $opt
+        $_where,
+        $self->_parse_opt($opt),
     );
     my @rows;
     while ( my $row = $rs->next ) {
         push @rows, $class->new({ row => $row });
     }
-    return \@rows;
+    return \@rows unless wantarray;
+
+    my $total = $self->count($_where);
+    my $pager = Data::Page->new($total, $opt->{ rows }, $opt->{ page });
+    return (\@rows, $pager);
 }
 
 sub count {
@@ -523,9 +545,17 @@ find_allは条件に合致するレコードを全て取得し、
       { order_by  => { id => 'desc' } },
   );
 
-find_allは現在のところ、必ず全件取得を行い、
+find_allは現在のところ、常に対象となるレコードを全件取得し、
 取得したレコードを全てSkinny::ARのオブジェクトに変換します。
 イテレータを返す機能は実装されていません。
+
+オプションにrowsとpageを指定することで、ページングを利用できます。
+ArrayContextで呼び出すと、ページャをData::Pageオブジェクトとして返します。
+
+  my ($books, $pager) = MyApp::Book->find_all(
+      {},
+      { rows => 10, page => 2 },
+  );
 
 =head2 count
 
