@@ -45,7 +45,7 @@ use Mock::City;
     is $pref->name, 'Tokyo', 'assert name';
 
     note "return undef when foreign_key is null";
-    my $city = Mock::City->find(2);
+    $city = Mock::City->find(2);
     is $city->p_name, undef, 'assert p_name';
     is $city->pref, undef, 'not return related object';
 }

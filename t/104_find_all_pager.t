@@ -13,7 +13,7 @@ use Mock::Book;
     note "ignore 0";
     ok my $books = Mock::Book->find_all({}, { page => 0 }), 'page 0 is ignore';
     is scalar @$books, 3, 'all books found';
-    ok my $books = Mock::Book->find_all({}, { rows => 0 }), 'rows 0 is ignore';
+    ok $books = Mock::Book->find_all({}, { rows => 0 }), 'rows 0 is ignore';
     is scalar @$books, 3, 'all books found';
 
     note "empty";
