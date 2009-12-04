@@ -4,6 +4,7 @@ all_from 'lib/DBIx/Skinny/AR.pm';
 
 requires 'DBIx::Skinny';
 requires 'Any::Moose';
+requires 'Lingua/EN/Inflect/Number';
 
 author_tests('xt');
 
