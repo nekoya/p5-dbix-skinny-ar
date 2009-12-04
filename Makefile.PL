@@ -2,7 +2,8 @@ use inc::Module::Install;
 name 'DBIx-Skinny-AR';
 all_from 'lib/DBIx/Skinny/AR.pm';
 
-requires '';
+requires 'DBIx::Skinny';
+requires 'Any::Moose';
 
 author_tests('xt');
 

@@ -17,7 +17,6 @@ inc/Test/Builder.pm
 inc/Test/Builder/Module.pm
 inc/Test/More.pm
 lib/DBIx/Skinny/AR.pm
-lib/DBIx/Skinny/AR/Manual/JA.pod
 lib/DBIx/Skinny/AR/Meta/Attribute/Trait/Unique.pm
 Makefile.PL
 MANIFEST			This list of files
@@ -37,7 +36,6 @@ t/400_belongs_to.t
 t/401_has_one.t
 t/402_has_many.t
 t/403_many_to_many.t
-t/500_query_log.t
 t/Mock/AR.pm
 t/Mock/Author.pm
 t/Mock/Book.pm
